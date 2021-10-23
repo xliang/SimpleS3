@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using Genbox.SimpleS3.Core.Abstracts;
-using Genbox.SimpleS3.Core.Abstracts.Constants;
 using Genbox.SimpleS3.Core.Abstracts.Response;
+using Genbox.SimpleS3.Core.Common.Constants;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Internals.Enums;
 using Genbox.SimpleS3.Core.Internals.Extensions;
@@ -18,7 +18,7 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Responses.Objects
     {
         public void MarshalResponse(Config config, HeadObjectResponse response, IDictionary<string, string> headers, Stream responseStream)
         {
-            response.Metadata = HeaderParserHelper.ParseMetadata(headers);
+            response.Metadata = ParserHelper.ParseMetadata(headers);
             response.ETag = headers.GetOptionalValue(HttpHeaders.ETag);
             response.CacheControl = headers.GetOptionalValue(HttpHeaders.CacheControl);
             response.LastModified = headers.GetHeaderDate(HttpHeaders.LastModified, DateTimeFormat.Rfc1123);
@@ -51,7 +51,7 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Responses.Objects
             response.LockLegalHold = headers.GetOptionalValue(AmzHeaders.XAmzObjectLockLegalHold) == "ON";
             response.NumberOfParts = headers.GetHeaderInt(AmzHeaders.XAmzPartsCount);
 
-            if (HeaderParserHelper.TryParseExpiration(headers, out (DateTimeOffset expiresOn, string ruleId) data))
+            if (ParserHelper.TryParseExpiration(headers, out (DateTimeOffset expiresOn, string ruleId) data))
             {
                 response.LifeCycleExpiresOn = data.expiresOn;
                 response.LifeCycleRuleId = data.ruleId;

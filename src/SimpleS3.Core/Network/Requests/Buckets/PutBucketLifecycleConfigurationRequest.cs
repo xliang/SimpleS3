@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Genbox.SimpleS3.Core.Abstracts.Enums;
 using Genbox.SimpleS3.Core.Abstracts.Features;
-using Genbox.SimpleS3.Core.Abstracts.Request;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Network.Requests.S3Types;
 
 namespace Genbox.SimpleS3.Core.Network.Requests.Buckets
@@ -20,6 +20,12 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Buckets
             Initialize(bucketName, rules);
         }
 
+        public IList<S3Rule> Rules { get; }
+        public Func<bool> ForceContentMd5 => () => true;
+        public byte[]? ContentMd5 { get; set; }
+
+        public string BucketName { get; set; }
+
         internal void Initialize(string bucketName, IEnumerable<S3Rule> rules)
         {
             BucketName = bucketName;
@@ -29,11 +35,6 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Buckets
                 Rules.Add(s3Rule);
             }
         }
-
-        public string BucketName { get; set; }
-        public IList<S3Rule> Rules { get; }
-        public Func<bool> ForceContentMd5 => () => true;
-        public byte[]? ContentMd5 { get; set; }
 
         public override void Reset()
         {

@@ -6,17 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Enums.NET" Version="3.0.3" />
-    <PackageReference Include="FluentValidation" Version="9.3.0" />
-    <PackageReference Include="Genbox.HttpBuilders" Version="1.0.2" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Experimental.Collections" Version="1.0.6-e190117-3" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="2.2.0" />
+    <PackageReference Include="FluentValidation" Version="10.3.3" />
+    <PackageReference Include="Genbox.HttpBuilders" Version="1.0.4" />
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="1.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SimpleS3.Core.Abstracts\SimpleS3.Core.Abstracts.csproj" />
     <ProjectReference Include="..\SimpleS3.Core.Common\SimpleS3.Core.Common.csproj" />
   </ItemGroup>
 

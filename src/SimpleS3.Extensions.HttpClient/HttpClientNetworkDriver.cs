@@ -6,19 +6,26 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Genbox.SimpleS3.Core.Abstracts.Request;
+using Genbox.SimpleS3.Core.Common;
 using Genbox.SimpleS3.Extensions.HttpClient.Internal;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using HttpMethod = Genbox.SimpleS3.Core.Abstracts.Enums.HttpMethod;
 
 namespace Genbox.SimpleS3.Extensions.HttpClient
 {
-    public class HttpClientNetworkDriver : INetworkDriver, IDisposable
+    public sealed class HttpClientNetworkDriver : INetworkDriver, IDisposable
     {
         private readonly System.Net.Http.HttpClient _client;
+        private readonly IOptions<HttpClientConfig> _options;
         private readonly ILogger<HttpClientNetworkDriver> _logger;
+        private readonly Version _httpVersion1 = new Version("1.1");
+        private readonly Version _httpVersion2 = new Version("2.0");
+        private readonly Version _httpVersion3 = new Version("3.0");
 
-        public HttpClientNetworkDriver(ILogger<HttpClientNetworkDriver> logger, System.Net.Http.HttpClient client)
+        public HttpClientNetworkDriver(IOptions<HttpClientConfig> options, ILogger<HttpClientNetworkDriver> logger, System.Net.Http.HttpClient client)
         {
+            _options = options;
             _logger = logger;
             _client = client;
         }
@@ -26,7 +33,6 @@ namespace Genbox.SimpleS3.Extensions.HttpClient
         public void Dispose()
         {
             _client?.Dispose();
-            GC.SuppressFinalize(this);
         }
 
         public async Task<(int statusCode, IDictionary<string, string> headers, Stream? responseStream)> SendRequestAsync(HttpMethod method, string url, IReadOnlyDictionary<string, string>? headers = null, Stream? dataStream = null, CancellationToken cancellationToken = default)
@@ -34,6 +40,19 @@ namespace Genbox.SimpleS3.Extensions.HttpClient
             HttpResponseMessage httpResponse;
             using (HttpRequestMessage httpRequest = new HttpRequestMessage(ConvertToMethod(method), url))
             {
+                if (_options.Value.HttpVersion == HttpVersion.Http1)
+                    httpRequest.Version = _httpVersion1;
+                else if (_options.Value.HttpVersion == HttpVersion.Http2)
+                    httpRequest.Version = _httpVersion2;
+                else if (_options.Value.HttpVersion == HttpVersion.Http3)
+                    httpRequest.Version = _httpVersion3;
+                else if (_options.Value.HttpVersion == HttpVersion.Unknown)
+                {
+                    //Do nothing. Use default.
+                }
+                else
+                    throw new ArgumentOutOfRangeException();
+
                 if (dataStream != null)
                     httpRequest.Content = new StreamContent(dataStream);
 

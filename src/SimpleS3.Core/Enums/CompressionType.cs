@@ -1,4 +1,4 @@
-﻿using System.Runtime.Serialization;
+﻿using Genbox.SimpleS3.Core.Common;
 
 namespace Genbox.SimpleS3.Core.Enums
 {
@@ -6,13 +6,13 @@ namespace Genbox.SimpleS3.Core.Enums
     {
         Unknown = 0,
 
-        [EnumMember(Value = "NONE")]
+        [EnumValue("NONE")]
         None,
 
-        [EnumMember(Value = "GZIP")]
+        [EnumValue("GZIP")]
         Gzip,
 
-        [EnumMember(Value = "BZIP2")]
+        [EnumValue("BZIP2")]
         Bzip
     }
 }

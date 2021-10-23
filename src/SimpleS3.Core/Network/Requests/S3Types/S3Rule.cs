@@ -6,10 +6,10 @@ namespace Genbox.SimpleS3.Core.Network.Requests.S3Types
     {
         public S3Rule(string id, bool enabled)
         {
-            Enabled = enabled;
             Id = id;
-            NonCurrentVersionTransitions = new List<S3NonCurrentVersionTransition>(0);
-            Transitions = new List<S3Transition>(0);
+            Enabled = enabled;
+            NonCurrentVersionTransitions = new List<S3NonCurrentVersionTransition>();
+            Transitions = new List<S3Transition>();
         }
 
         /// <summary>Unique identifier for the rule. The value cannot be longer than 255 characters.</summary>
@@ -41,6 +41,6 @@ namespace Genbox.SimpleS3.Core.Network.Requests.S3Types
         public bool Enabled { get; }
 
         /// <summary>Specifies when an Amazon S3 object transitions to a specified storage class.</summary>
-        public IList<S3Transition> Transitions { get; set; }
+        public IList<S3Transition> Transitions { get; }
     }
 }

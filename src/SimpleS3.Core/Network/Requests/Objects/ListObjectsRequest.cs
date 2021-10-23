@@ -1,5 +1,5 @@
 ﻿using Genbox.SimpleS3.Core.Abstracts.Enums;
-using Genbox.SimpleS3.Core.Abstracts.Request;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Network.Requests.Interfaces;
 
@@ -17,11 +17,6 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Objects
         public ListObjectsRequest(string bucketName) : this()
         {
             Initialize(bucketName);
-        }
-
-        internal void Initialize(string bucketName)
-        {
-            BucketName = bucketName;
         }
 
         /// <summary>
@@ -76,6 +71,11 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Objects
         public string BucketName { get; set; }
 
         public Payer RequestPayer { get; set; }
+
+        internal void Initialize(string bucketName)
+        {
+            BucketName = bucketName;
+        }
 
         public override void Reset()
         {

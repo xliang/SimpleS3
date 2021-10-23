@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using Genbox.SimpleS3.Core.Abstracts.Enums;
 using Genbox.SimpleS3.Core.Abstracts.Features;
-using Genbox.SimpleS3.Core.Abstracts.Request;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Internals.Helpers;
 using Genbox.SimpleS3.Core.Network.Requests.Interfaces;
@@ -14,25 +14,11 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Multipart
     {
         private byte[]? _sseCustomerKey;
 
-        internal UploadPartRequest() : base(HttpMethod.PUT)
-        {
-        }
+        internal UploadPartRequest() : base(HttpMethod.PUT) { }
 
         public UploadPartRequest(string bucketName, string objectKey, int partNumber, string uploadId, Stream content) : this()
         {
             Initialize(bucketName, objectKey, partNumber, uploadId, content);
-        }
-
-        internal void Initialize(string bucketName, string objectKey, int partNumber, string uploadId, Stream content)
-        {
-            if (partNumber <= 0 || partNumber > 10_000)
-                throw new ArgumentException("Part number must be between 1 and 10.000 inclusive", nameof(partNumber));
-
-            BucketName = bucketName;
-            ObjectKey = objectKey;
-            PartNumber = partNumber;
-            UploadId = uploadId;
-            Content = content;
         }
 
         public string BucketName { get; set; }
@@ -44,6 +30,7 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Multipart
         public Payer RequestPayer { get; set; }
         public SseCustomerAlgorithm SseCustomerAlgorithm { get; set; }
         public byte[]? SseCustomerKeyMd5 { get; set; }
+
         public byte[]? SseCustomerKey
         {
             get => _sseCustomerKey;
@@ -60,6 +47,18 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Multipart
         }
 
         public string UploadId { get; set; }
+
+        internal void Initialize(string bucketName, string objectKey, int partNumber, string uploadId, Stream content)
+        {
+            if (partNumber <= 0 || partNumber > 10_000)
+                throw new ArgumentException("Part number must be between 1 and 10.000 inclusive", nameof(partNumber));
+
+            BucketName = bucketName;
+            ObjectKey = objectKey;
+            PartNumber = partNumber;
+            UploadId = uploadId;
+            Content = content;
+        }
 
         public override void Reset()
         {

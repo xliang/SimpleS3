@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Security.Authentication;
 using Genbox.SimpleS3.Core.Abstracts;
 using Genbox.SimpleS3.Core.Abstracts.Request;
-using Genbox.SimpleS3.Core.Common;
+using Genbox.SimpleS3.Core.Common.Constants;
 using Genbox.SimpleS3.Core.Common.Extensions;
 using Genbox.SimpleS3.Extensions.HttpClientFactory.Internal;
 using Microsoft.Extensions.DependencyInjection;
@@ -28,16 +28,15 @@ namespace Genbox.SimpleS3.Extensions.HttpClientFactory.Extensions
 
         public static IHttpClientBuilder UseHttpClientFactory(this ICoreBuilder clientBuilder)
         {
-            CustomHttpClientFactoryBuilder builder = new CustomHttpClientFactoryBuilder(clientBuilder.Services, "SimpleS3");
+            CustomHttpClientFactoryBuilder builder = new CustomHttpClientFactoryBuilder(clientBuilder.Services);
 
             //Contrary to the naming, this does not add a HttpClient to the services. It is the factories etc. necessary for HttpClientFactory to work.
-            //It also bind the HttpClient to HttpClientFactoryNetworkDriver instead of adding it directly to the service collection.
-            //Note that it adds INetworkDriver as a transient service in order to change out the HttpClient.
-            builder.Services.AddHttpClient<INetworkDriver, HttpClientFactoryNetworkDriver>(builder.Name);
+            builder.Services.AddHttpClient();
+            builder.Services.AddSingleton<INetworkDriver, HttpClientFactoryNetworkDriver>();
 
-            builder.Services.Configure<HttpClientFactoryOptions>(builder.Name, (options, x) =>
+            builder.Services.Configure<HttpClientFactoryOptions>((options, services) =>
             {
-                IOptions<HttpClientFactoryConfig> factoryConfig = x.GetService<IOptions<HttpClientFactoryConfig>>();
+                IOptions<HttpClientFactoryConfig> factoryConfig = services.GetRequiredService<IOptions<HttpClientFactoryConfig>>();
                 options.HandlerLifetime = factoryConfig.Value.HandlerLifetime;
 
                 options.HttpClientActions.Add(client =>
@@ -57,6 +56,13 @@ namespace Genbox.SimpleS3.Extensions.HttpClientFactory.Extensions
 
                     b.PrimaryHandler = handler;
                 });
+            });
+
+            builder.Services.Configure<HttpClientFactoryConfig>((options, services) =>
+            {
+                //Here we transfer over the HttpClientName from the upper API config to lower API config
+                IOptions<HttpClientFactoryConfig> factoryConfig = services.GetRequiredService<IOptions<HttpClientFactoryConfig>>();
+                options.HttpClientName = factoryConfig.Value.HttpClientName;
             });
 
             return builder;

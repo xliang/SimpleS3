@@ -1,6 +1,6 @@
 ﻿using Genbox.SimpleS3.Core.Abstracts.Enums;
-using Genbox.SimpleS3.Core.Abstracts.Request;
 using Genbox.SimpleS3.Core.Builders;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Network.Requests.Interfaces;
 
@@ -27,22 +27,22 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Objects
             Initialize(bucketName, objectKey);
         }
 
-        internal void Initialize(string bucketName, string objectKey)
-        {
-            BucketName = bucketName;
-            ObjectKey = objectKey;
-        }
-
+        public string BucketName { get; set; }
         public byte[]? ContentMd5 { get; set; }
         public ObjectCannedAcl Acl { get; set; }
         public AclBuilder AclGrantRead { get; }
         public AclBuilder AclGrantReadAcp { get; }
         public AclBuilder AclGrantWriteAcp { get; }
         public AclBuilder AclGrantFullControl { get; }
+        public string ObjectKey { get; set; }
         public Payer RequestPayer { get; set; }
         public string? VersionId { get; set; }
-        public string BucketName { get; set; }
-        public string ObjectKey { get; set; }
+
+        internal void Initialize(string bucketName, string objectKey)
+        {
+            BucketName = bucketName;
+            ObjectKey = objectKey;
+        }
 
         public override void Reset()
         {

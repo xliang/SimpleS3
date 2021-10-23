@@ -2,16 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using System.Xml.Serialization;
 using Genbox.SimpleS3.Core.Abstracts;
-using Genbox.SimpleS3.Core.Abstracts.Constants;
 using Genbox.SimpleS3.Core.Abstracts.Response;
+using Genbox.SimpleS3.Core.Common.Constants;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Internals.Enums;
 using Genbox.SimpleS3.Core.Internals.Extensions;
 using Genbox.SimpleS3.Core.Internals.Helpers;
 using Genbox.SimpleS3.Core.Network.Responses.Objects;
-using Genbox.SimpleS3.Core.Network.Responses.Objects.Xml;
 using JetBrains.Annotations;
 
 namespace Genbox.SimpleS3.Core.Internals.Marshallers.Responses.Objects
@@ -23,7 +21,7 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Responses.Objects
         {
             response.NewVersionId = headers.GetOptionalValue(AmzHeaders.XAmzCopySourceVersionId);
 
-            if (HeaderParserHelper.TryParseExpiration(headers, out (DateTimeOffset expiresOn, string ruleId) data))
+            if (ParserHelper.TryParseExpiration(headers, out (DateTimeOffset expiresOn, string ruleId) data))
             {
                 response.LifeCycleExpiresOn = data.expiresOn;
                 response.LifeCycleRuleId = data.ruleId;
@@ -40,16 +38,22 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Responses.Objects
 
             response.VersionId = headers.GetOptionalValue(AmzHeaders.XAmzVersionId);
 
-            XmlSerializer s = new XmlSerializer(typeof(CopyObjectResult));
-
-            using (XmlTextReader r = new XmlTextReader(responseStream))
+            using (XmlTextReader xmlReader = new XmlTextReader(responseStream))
             {
-                r.Namespaces = false;
+                xmlReader.ReadToDescendant("CopyObjectResult");
 
-                CopyObjectResult deleteResult = (CopyObjectResult)s.Deserialize(r);
-
-                response.LastModified = deleteResult.LastModified;
-                response.ETag = deleteResult.ETag;
+                foreach (string name in XmlHelper.ReadElements(xmlReader))
+                {
+                    switch (name)
+                    {
+                        case "ETag":
+                            response.ETag = xmlReader.ReadString();
+                            break;
+                        case "LastModified":
+                            response.LastModified = ValueHelper.ParseDate(xmlReader.ReadString(), DateTimeFormat.Iso8601DateTimeExt);
+                            break;
+                    }
+                }
             }
         }
     }

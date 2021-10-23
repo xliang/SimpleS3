@@ -1,12 +1,19 @@
 ﻿using System.Collections.Generic;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Network.Responses.Interfaces;
 using Genbox.SimpleS3.Core.Network.Responses.S3Types;
 
 namespace Genbox.SimpleS3.Core.Network.Responses.Objects
 {
-    public class ListObjectsResponse : BaseResponse, IHasTruncated, IHasTruncatedExt, IHasRequestCharged
+    public class ListObjectsResponse : BaseResponse, IHasTruncated, IHasTruncatedExt, IHasRequestCharged, IHasBucketName
     {
+        public ListObjectsResponse()
+        {
+            Objects = new List<S3Object>();
+            CommonPrefixes = new List<string>();
+        }
+
         /// <summary>Name of the bucket.</summary>
         public string BucketName { get; internal set; }
 
@@ -32,7 +39,7 @@ namespace Genbox.SimpleS3.Core.Network.Responses.Objects
         public string StartAfter { get; internal set; }
 
         /// <summary>The list of objects</summary>
-        public IList<S3Object> Objects { get; internal set; }
+        public IList<S3Object> Objects { get; }
 
         public bool RequestCharged { get; internal set; }
 
@@ -40,6 +47,6 @@ namespace Genbox.SimpleS3.Core.Network.Responses.Objects
         public EncodingType EncodingType { get; internal set; }
         public string? Prefix { get; internal set; }
         public string? Delimiter { get; internal set; }
-        public IList<string>? CommonPrefixes { get; internal set; }
+        public IList<string> CommonPrefixes { get; }
     }
 }

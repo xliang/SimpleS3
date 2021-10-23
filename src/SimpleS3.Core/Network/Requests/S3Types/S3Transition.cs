@@ -30,6 +30,13 @@ namespace Genbox.SimpleS3.Core.Network.Requests.S3Types
             StorageClass = storageClass;
         }
 
+        internal S3Transition(DateTimeOffset? transitionOnDate, int? transitionAfterDays, StorageClass storageClass)
+        {
+            TransitionOnDate = transitionOnDate;
+            TransitionAfterDays = transitionAfterDays;
+            StorageClass = storageClass;
+        }
+
         public DateTimeOffset? TransitionOnDate { get; }
         public int? TransitionAfterDays { get; }
         public StorageClass StorageClass { get; }

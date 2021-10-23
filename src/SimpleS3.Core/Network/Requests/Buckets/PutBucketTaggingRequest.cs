@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using Genbox.SimpleS3.Core.Abstracts.Enums;
 using Genbox.SimpleS3.Core.Abstracts.Features;
-using Genbox.SimpleS3.Core.Abstracts.Request;
 using Genbox.SimpleS3.Core.Builders;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Network.Requests.Interfaces;
 
 namespace Genbox.SimpleS3.Core.Network.Requests.Buckets
@@ -27,6 +27,12 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Buckets
             Initialize(bucketName, tags);
         }
 
+        public byte[]? ContentMd5 { get; set; }
+        public Func<bool> ForceContentMd5 => () => true;
+
+        public string BucketName { get; set; }
+        public TagBuilder Tags { get; }
+
         internal void Initialize(string bucketName, IDictionary<string, string> tags)
         {
             BucketName = bucketName;
@@ -36,11 +42,6 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Buckets
                 Tags.Add(pair.Key, pair.Value);
             }
         }
-
-        public string BucketName { get; set; }
-        public byte[]? ContentMd5 { get; set; }
-        public Func<bool> ForceContentMd5 => () => true;
-        public TagBuilder Tags { get; }
 
         public override void Reset()
         {

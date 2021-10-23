@@ -1,13 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Network.Responses.Interfaces;
 using Genbox.SimpleS3.Core.Network.Responses.S3Types;
 
 namespace Genbox.SimpleS3.Core.Network.Responses.Multipart
 {
-    public class ListPartsResponse : BaseResponse, IHasRequestCharged, IHasAbort, IHasTruncated, IHasStorageClass, IHasUploadId
+    public class ListPartsResponse : BaseResponse, IHasRequestCharged, IHasAbort, IHasTruncated, IHasStorageClass, IHasUploadId, IHasBucketName, IHasObjectKey
     {
+        public ListPartsResponse()
+        {
+            Parts = new List<S3Part>();
+        }
+
         /// <summary>Name of the bucket to which the multipart upload was initiated.</summary>
         public string BucketName { get; internal set; }
 
@@ -42,7 +48,7 @@ namespace Genbox.SimpleS3.Core.Network.Responses.Multipart
         public S3Identity Initiator { get; internal set; }
 
         /// <summary>The list of parts</summary>
-        public IList<S3Part> Parts { get; internal set; }
+        public IList<S3Part> Parts { get; }
 
         public DateTimeOffset? AbortsOn { get; internal set; }
         public string? AbortRuleId { get; internal set; }

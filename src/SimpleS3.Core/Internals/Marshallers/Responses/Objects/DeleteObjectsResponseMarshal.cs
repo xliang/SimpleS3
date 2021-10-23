@@ -2,16 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
-using System.Xml.Serialization;
 using Genbox.SimpleS3.Core.Abstracts;
-using Genbox.SimpleS3.Core.Abstracts.Constants;
 using Genbox.SimpleS3.Core.Abstracts.Enums;
 using Genbox.SimpleS3.Core.Abstracts.Response;
+using Genbox.SimpleS3.Core.Common.Constants;
 using Genbox.SimpleS3.Core.Internals.Helpers;
 using Genbox.SimpleS3.Core.Network.Responses.Objects;
-using Genbox.SimpleS3.Core.Network.Responses.Objects.Xml;
 using Genbox.SimpleS3.Core.Network.Responses.S3Types;
-using Genbox.SimpleS3.Core.Network.Responses.XmlTypes;
 using JetBrains.Annotations;
 
 namespace Genbox.SimpleS3.Core.Internals.Marshallers.Responses.Objects
@@ -23,50 +20,87 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Responses.Objects
         {
             response.RequestCharged = headers.ContainsKey(AmzHeaders.XAmzRequestCharged);
 
-            XmlSerializer s = new XmlSerializer(typeof(DeleteResult));
-
-            using (XmlTextReader r = new XmlTextReader(responseStream))
+            using (XmlTextReader xmlReader = new XmlTextReader(responseStream))
             {
-                r.Namespaces = false;
+                xmlReader.ReadToDescendant("DeleteResult");
 
-                DeleteResult deleteResult = (DeleteResult)s.Deserialize(r);
-
-                if (deleteResult.Deleted != null)
+                foreach (string name in XmlHelper.ReadElements(xmlReader))
                 {
-                    response.Deleted = new List<S3DeletedObject>(deleteResult.Deleted.Count);
-
-                    foreach (Deleted deleted in deleteResult.Deleted)
+                    switch (name)
                     {
-                        S3DeletedObject s3Deleted = new S3DeletedObject();
-                        s3Deleted.ObjectKey = deleted.Key;
-                        s3Deleted.DeleteMarkerVersionId = deleted.DeleteMarkerVersionId;
-                        s3Deleted.VersionId = deleted.VersionId;
-                        s3Deleted.IsDeleteMarker = deleted.DeleteMarker;
-
-                        response.Deleted.Add(s3Deleted);
+                        case "Deleted":
+                            ParseDeleted(response, xmlReader);
+                            break;
+                        case "Error":
+                            ParseError(response, xmlReader);
+                            break;
                     }
                 }
-                else
-                    response.Deleted = Array.Empty<S3DeletedObject>();
-
-                if (deleteResult.Error != null)
-                {
-                    response.Errors = new List<S3DeleteError>(deleteResult.Error.Count);
-
-                    foreach (Error error in deleteResult.Error)
-                    {
-                        S3DeleteError s3DeleteError = new S3DeleteError();
-                        s3DeleteError.ObjectKey = error.Key;
-                        s3DeleteError.VersionId = error.VersionId;
-                        s3DeleteError.Code = ValueHelper.ParseEnum<ErrorCode>(error.Code);
-                        s3DeleteError.Message = error.Message;
-
-                        response.Errors.Add(s3DeleteError);
-                    }
-                }
-                else
-                    response.Errors = Array.Empty<S3DeleteError>();
             }
+        }
+
+        private static void ParseDeleted(DeleteObjectsResponse response, XmlReader xmlReader)
+        {
+            string? key = null;
+            string? versionId = null;
+            bool deleteMarker = false;
+            string? deleteVersionId = null;
+
+            foreach (string name in XmlHelper.ReadElements(xmlReader, "Deleted"))
+            {
+                switch (name)
+                {
+                    case "Key":
+                        key = xmlReader.ReadString();
+                        break;
+                    case "VersionId":
+                        versionId = xmlReader.ReadString();
+                        break;
+                    case "DeleteMarker":
+                        deleteMarker = ValueHelper.ParseBool(xmlReader.ReadString());
+                        break;
+                    case "DeleteMarkerVersionId":
+                        deleteVersionId = xmlReader.ReadString();
+                        break;
+                }
+            }
+
+            if (key == null)
+                throw new InvalidOperationException("Missing required values");
+
+            response.Deleted.Add(new S3DeletedObject(key, versionId, deleteMarker, deleteVersionId));
+        }
+
+        private static void ParseError(DeleteObjectsResponse response, XmlReader xmlReader)
+        {
+            string? key = null;
+            string? versionId = null;
+            ErrorCode code = ErrorCode.Unknown;
+            string? message = null;
+
+            foreach (string name in XmlHelper.ReadElements(xmlReader, "Error"))
+            {
+                switch (name)
+                {
+                    case "Key":
+                        key = xmlReader.ReadString();
+                        break;
+                    case "VersionId":
+                        versionId = xmlReader.ReadString();
+                        break;
+                    case "Code":
+                        code = ValueHelper.ParseEnum<ErrorCode>(xmlReader.ReadString());
+                        break;
+                    case "Message":
+                        message = xmlReader.ReadString();
+                        break;
+                }
+            }
+
+            if (key == null || message == null)
+                throw new InvalidOperationException("Missing required values");
+
+            response.Errors.Add(new S3DeleteError(key, code, message, versionId));
         }
     }
 }

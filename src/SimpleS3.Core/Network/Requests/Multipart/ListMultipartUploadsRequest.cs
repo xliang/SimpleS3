@@ -1,5 +1,5 @@
 ﻿using Genbox.SimpleS3.Core.Abstracts.Enums;
-using Genbox.SimpleS3.Core.Abstracts.Request;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Enums;
 
 namespace Genbox.SimpleS3.Core.Network.Requests.Multipart
@@ -16,18 +16,11 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Multipart
     /// </summary>
     public class ListMultipartUploadsRequest : BaseRequest, IHasBucketName
     {
-        internal ListMultipartUploadsRequest() : base(HttpMethod.GET)
-        {
-        }
+        internal ListMultipartUploadsRequest() : base(HttpMethod.GET) { }
 
         public ListMultipartUploadsRequest(string bucketName) : this()
         {
             Initialize(bucketName);
-        }
-
-        internal void Initialize(string bucketName)
-        {
-            BucketName = bucketName;
         }
 
         /// <summary>
@@ -72,6 +65,11 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Multipart
         public string? UploadIdMarker { get; set; }
 
         public string BucketName { get; set; }
+
+        internal void Initialize(string bucketName)
+        {
+            BucketName = bucketName;
+        }
 
         public override void Reset()
         {

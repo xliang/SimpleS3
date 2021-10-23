@@ -1,7 +1,8 @@
+using System.Collections.Generic;
 using System.IO;
 using Genbox.SimpleS3.Core.Abstracts;
-using Genbox.SimpleS3.Core.Abstracts.Constants;
 using Genbox.SimpleS3.Core.Abstracts.Request;
+using Genbox.SimpleS3.Core.Common.Constants;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Internals.Enums;
 using Genbox.SimpleS3.Core.Internals.Helpers;
@@ -51,6 +52,8 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Requests.Buckets
 
                 if (rule.Filter != null)
                 {
+                    writer.WriteStartElement("Filter");
+
                     if (rule.Filter.Prefix != null)
                         writer.WriteElement("Prefix", rule.Filter.Prefix);
 
@@ -62,27 +65,33 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Requests.Buckets
                         writer.WriteEndElement("Tag");
                     }
 
-                    foreach (S3AndCondition condition in rule.Filter.Conditions)
+                    S3AndCondition? andCondition = rule.Filter.AndConditions;
+
+                    if (andCondition != null)
                     {
                         writer.WriteStartElement("And");
 
-                        if (condition.Prefix != null)
-                            writer.WriteElement("Prefix", condition.Prefix);
+                        if (andCondition.Prefix != null)
+                            writer.WriteElement("Prefix", andCondition.Prefix);
 
-                        if (condition.Tag != null)
+                        if (andCondition.Tags != null)
                         {
-                            writer.WriteStartElement("Tag");
-                            writer.WriteElement("Key", condition.Tag.Value.Key);
-                            writer.WriteElement("Value", condition.Tag.Value.Value);
-                            writer.WriteEndElement("Tag");
+                            foreach (KeyValuePair<string, string> tag in andCondition.Tags)
+                            {
+                                writer.WriteStartElement("Tag");
+                                writer.WriteElement("Key", tag.Key);
+                                writer.WriteElement("Value", tag.Value);
+                                writer.WriteEndElement("Tag");
+                            }
                         }
 
                         writer.WriteEndElement("And");
                     }
+
+                    writer.WriteEndElement("Filter");
                 }
 
-                if (rule.Id != null)
-                    writer.WriteElement("ID", rule.Id);
+                writer.WriteElement("ID", rule.Id);
 
                 if (rule.NonCurrentVersionExpirationDays != null)
                 {

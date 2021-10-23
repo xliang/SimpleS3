@@ -1,7 +1,7 @@
 using System.IO;
 using Genbox.SimpleS3.Core.Abstracts;
-using Genbox.SimpleS3.Core.Abstracts.Constants;
 using Genbox.SimpleS3.Core.Abstracts.Request;
+using Genbox.SimpleS3.Core.Common.Constants;
 using Genbox.SimpleS3.Core.Internals.Xml;
 using Genbox.SimpleS3.Core.Network.Requests.Objects;
 using Genbox.SimpleS3.Core.Network.Requests.S3Types;
@@ -25,7 +25,7 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Requests.Objects
             foreach (S3DeleteInfo info in request.Objects)
             {
                 xml.WriteStartElement("Object");
-                xml.WriteElement("Key", info.Name);
+                xml.WriteElement("Key", info.ObjectKey);
 
                 if (info.VersionId != null)
                     xml.WriteElement("VersionId", info.VersionId);

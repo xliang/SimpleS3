@@ -1,5 +1,5 @@
 ﻿using Genbox.SimpleS3.Core.Abstracts.Enums;
-using Genbox.SimpleS3.Core.Abstracts.Request;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Network.Requests.Interfaces;
 using Genbox.SimpleS3.Core.Network.Requests.S3Types;
@@ -13,12 +13,6 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Objects
         public RestoreObjectRequest(string bucketName, string objectKey) : this()
         {
             Initialize(bucketName, objectKey);
-        }
-
-        internal void Initialize(string bucketName, string objectKey)
-        {
-            BucketName = bucketName;
-            ObjectKey = objectKey;
         }
 
         /// <summary>
@@ -45,6 +39,12 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Objects
         public string ObjectKey { get; set; }
         public Payer RequestPayer { get; set; }
         public string? VersionId { get; set; }
+
+        internal void Initialize(string bucketName, string objectKey)
+        {
+            BucketName = bucketName;
+            ObjectKey = objectKey;
+        }
 
         public override void Reset()
         {

@@ -5,6 +5,7 @@ using Genbox.SimpleS3.Core.Common.Exceptions;
 using Genbox.SimpleS3.Core.Common.Extensions;
 using Genbox.SimpleS3.Core.Common.Helpers;
 using Genbox.SimpleS3.Extensions.ProfileManager.Abstracts;
+using Genbox.SimpleS3.Extensions.ProfileManager.Internal;
 using Microsoft.Extensions.Options;
 
 namespace Genbox.SimpleS3.Extensions.ProfileManager
@@ -14,10 +15,10 @@ namespace Genbox.SimpleS3.Extensions.ProfileManager
         public const string DefaultProfile = "DefaultProfile";
         private readonly IOptions<ProfileManagerOptions> _options;
         private readonly IAccessKeyProtector? _protector;
-
-        private readonly IInputValidator _validator;
         private readonly IProfileSerializer _serializer;
         private readonly IStorage _storage;
+
+        private readonly IInputValidator _validator;
 
         public ProfileManager(IInputValidator validator, IProfileSerializer serializer, IStorage storage, IOptions<ProfileManagerOptions> options, IAccessKeyProtector? protector = null)
         {
@@ -53,7 +54,7 @@ namespace Genbox.SimpleS3.Extensions.ProfileManager
             string userProtector = _protector != null ? _protector.GetType().Name : string.Empty;
 
             if (!string.Equals(profileProtector, userProtector, StringComparison.OrdinalIgnoreCase))
-                throw new S3Exception("The access key is protected with " + protector + " but it was not available");
+                throw new S3Exception($"The access key is protected with '{protector}' but it was not available");
 
             return profile;
         }

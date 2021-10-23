@@ -7,9 +7,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SimpleS3.Extensions.BackBlazeB2\SimpleS3.Extensions.BackBlazeB2.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SimpleS3.BackBlazeB2\SimpleS3.BackBlazeB2.csproj" />
+    <ProjectReference Include="..\SimpleS3.AmazonS3\SimpleS3.AmazonS3.csproj" />
     <ProjectReference Include="..\SimpleS3.Extensions.ProfileManager\SimpleS3.Extensions.ProfileManager.csproj" />
-    <ProjectReference Include="..\SimpleS3\SimpleS3.csproj" />
+    <ProjectReference Include="..\SimpleS3.GoogleCloudStorage\SimpleS3.GoogleCloudStorage.csproj" />
+    <ProjectReference Include="..\SimpleS3.Wasabi\SimpleS3.Wasabi.csproj" />
   </ItemGroup>
 
 </Project>

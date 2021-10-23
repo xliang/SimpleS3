@@ -1,5 +1,5 @@
 using Genbox.SimpleS3.Core.Abstracts.Enums;
-using Genbox.SimpleS3.Core.Abstracts.Request;
+using Genbox.SimpleS3.Core.Common.Marshal;
 
 namespace Genbox.SimpleS3.Core.Network.Requests.Buckets
 {
@@ -10,22 +10,21 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Buckets
     /// </summary>
     public class PutBucketAccelerateConfigurationRequest : BaseRequest, IHasBucketName
     {
-        internal PutBucketAccelerateConfigurationRequest() : base(HttpMethod.PUT)
-        {
-        }
+        internal PutBucketAccelerateConfigurationRequest() : base(HttpMethod.PUT) { }
 
         public PutBucketAccelerateConfigurationRequest(string bucketName, bool enabled) : this()
         {
             Initialize(bucketName, enabled);
         }
 
+        public bool AccelerationEnabled { get; set; }
+
+        public string BucketName { get; set; }
+
         internal void Initialize(string bucketName, bool enabled)
         {
             BucketName = bucketName;
             AccelerationEnabled = enabled;
         }
-
-        public string BucketName { get; set; }
-        public bool AccelerationEnabled { get; set; }
     }
 }

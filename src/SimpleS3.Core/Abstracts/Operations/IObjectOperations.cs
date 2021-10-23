@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
-using Genbox.SimpleS3.Core.Abstracts.Wrappers;
 using Genbox.SimpleS3.Core.Network.Requests.Objects;
 using Genbox.SimpleS3.Core.Network.Responses.Objects;
 using JetBrains.Annotations;
@@ -11,9 +9,6 @@ namespace Genbox.SimpleS3.Core.Abstracts.Operations
     [PublicAPI]
     public interface IObjectOperations
     {
-        IList<IRequestWrapper> RequestWrappers { get; }
-        IList<IResponseWrapper> ResponseWrappers { get; }
-
         /// <summary>Deletes an object. See https://docs.aws.amazon.com/en_pv/AmazonS3/latest/API/API_DeleteObject.html for details</summary>
         Task<DeleteObjectResponse> DeleteObjectAsync(DeleteObjectRequest request, CancellationToken token = default);
 
@@ -31,6 +26,9 @@ namespace Genbox.SimpleS3.Core.Abstracts.Operations
 
         /// <summary>List objects within a bucket. See https://docs.aws.amazon.com/en_pv/AmazonS3/latest/API/API_ListObjectsV2.html for details</summary>
         Task<ListObjectsResponse> ListObjectsAsync(ListObjectsRequest request, CancellationToken token = default);
+
+        /// <summary>List all versions of objects within a bucket. See https://docs.aws.amazon.com/AmazonS3/latest/API/API_ListObjectVersions.html for details</summary>
+        Task<ListObjectVersionsResponse> ListObjectVersionsAsync(ListObjectVersionsRequest request, CancellationToken token = default);
 
         /// <summary>
         /// Restores an archived copy of an object back into Amazon S3. See https://docs.aws.amazon.com/en_pv/AmazonS3/latest/API/API_RestoreObject.html

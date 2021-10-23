@@ -1,4 +1,5 @@
-﻿using System;
+#if COMMERCIAL
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -13,12 +14,12 @@ namespace Genbox.SimpleS3.Core.Extensions
     public static class BucketClientExtensions
     {
         /// <summary>List all buckets</summary>
-        public static async IAsyncEnumerable<S3Bucket> ListAllBucketsAsync(this IBucketClient client, Action<ListBucketsRequest>? config = null, [EnumeratorCancellation] CancellationToken token = default)
+        public static async IAsyncEnumerable<S3Bucket> ListAllBucketsAsync(this IBucketClient client, Action<ListBucketsRequest>? config = null, [EnumeratorCancellation]CancellationToken token = default)
         {
             ListBucketsResponse response = await client.ListBucketsAsync(config, token).ConfigureAwait(false);
 
             if (!response.IsSuccess)
-                throw new S3RequestException(response.StatusCode, "Request failed");
+                throw new S3RequestException(response, "Request failed");
 
             if (token.IsCancellationRequested)
                 yield break;
@@ -33,3 +34,4 @@ namespace Genbox.SimpleS3.Core.Extensions
         }
     }
 }
+#endif

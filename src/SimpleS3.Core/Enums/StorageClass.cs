@@ -1,4 +1,4 @@
-﻿using System.Runtime.Serialization;
+﻿using Genbox.SimpleS3.Core.Common;
 
 namespace Genbox.SimpleS3.Core.Enums
 {
@@ -20,10 +20,10 @@ namespace Genbox.SimpleS3.Core.Enums
         ///     <item><term>S3 Lifecycle management for automatic migration of objects to other S3 Storage Classes</term></item>
         /// </list>
         /// </summary>
-        [EnumMember(Value = "STANDARD")]
+        [EnumValue("STANDARD")]
         Standard,
 
-        [EnumMember(Value = "REDUCED_REDUNDANCY")]
+        [EnumValue("REDUCED_REDUNDANCY")]
         ReducedRedundancy,
 
         /// <summary>
@@ -39,7 +39,7 @@ namespace Genbox.SimpleS3.Core.Enums
         ///     <item><term>S3 PUT API for direct uploads to S3 Glacier, and S3 Lifecycle management for automatic migration of objects</term></item>
         /// </list>
         /// </summary>
-        [EnumMember(Value = "GLACIER")]
+        [EnumValue("GLACIER")]
         Glacier,
 
         /// <summary>
@@ -57,7 +57,7 @@ namespace Genbox.SimpleS3.Core.Enums
         ///     <item><term>S3 Lifecycle management for automatic migration of objects to other S3 Storage Classes</term></item>
         /// </list>
         /// </summary>
-        [EnumMember(Value = "STANDARD_IA")]
+        [EnumValue("STANDARD_IA")]
         StandardIa,
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace Genbox.SimpleS3.Core.Enums
         ///     <item><term>S3 Lifecycle management for automatic migration of objects to other S3 Storage Classes</term></item>
         /// </list>
         /// </summary>
-        [EnumMember(Value = "ONEZONE_IA")]
+        [EnumValue("ONEZONE_IA")]
         OneZoneIa,
 
         /// <summary>
@@ -98,7 +98,7 @@ namespace Genbox.SimpleS3.Core.Enums
         ///     <item><term>S3 Lifecycle management for automatic migration of objects to other S3 Storage Classes</term></item>
         /// </list>
         /// </summary>
-        [EnumMember(Value = "INTELLIGENT_TIERING")]
+        [EnumValue("INTELLIGENT_TIERING")]
         IntelligentTiering,
 
         /// <summary>
@@ -118,7 +118,7 @@ namespace Genbox.SimpleS3.Core.Enums
         ///     </item>
         /// </list>
         /// </summary>
-        [EnumMember(Value = "DEEP_ARCHIVE")]
+        [EnumValue("DEEP_ARCHIVE")]
         DeepArchive
     }
 }

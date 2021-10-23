@@ -1,8 +1,8 @@
 ﻿using System;
 using Genbox.HttpBuilders;
 using Genbox.SimpleS3.Core.Abstracts.Enums;
-using Genbox.SimpleS3.Core.Abstracts.Request;
 using Genbox.SimpleS3.Core.Builders;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Internals.Helpers;
 using Genbox.SimpleS3.Core.Network.Requests.Interfaces;
@@ -39,40 +39,33 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Objects
             Initialize(sourceBucketName, sourceObjectKey, destinationBucketName, destinationObjectKey);
         }
 
-        internal void Initialize(string sourceBucketName, string sourceObjectKey, string destinationBucketName, string destinationObjectKey)
-        {
-            SourceBucketName = sourceBucketName;
-            SourceObjectKey = sourceObjectKey;
-            DestinationBucketName = destinationBucketName;
-            DestinationObjectKey = destinationObjectKey;
-        }
-
         public string SourceBucketName { get; private set; }
         public string SourceObjectKey { get; private set; }
         public string DestinationBucketName { get; private set; }
         public string DestinationObjectKey { get; private set; }
         public MetadataDirective MetadataDirective { get; set; }
         public TaggingDirective TaggingDirective { get; set; }
-        string IHasBucketName.BucketName { get => DestinationBucketName; set => throw new NotSupportedException(); }
+        string IHasBucketName.BucketName => DestinationBucketName;
         public DateTimeOffset? IfModifiedSince { get; set; }
         public DateTimeOffset? IfUnmodifiedSince { get; set; }
         public ETagBuilder IfETagMatch { get; }
         public ETagBuilder IfETagNotMatch { get; }
+        public bool? LockLegalHold { get; set; }
         public LockMode LockMode { get; set; }
         public DateTimeOffset? LockRetainUntil { get; set; }
-        public bool? LockLegalHold { get; set; }
         public MetadataBuilder Metadata { get; }
         public ObjectCannedAcl Acl { get; set; }
         public AclBuilder AclGrantRead { get; }
         public AclBuilder AclGrantReadAcp { get; }
         public AclBuilder AclGrantWriteAcp { get; }
         public AclBuilder AclGrantFullControl { get; }
-        string IHasObjectKey.ObjectKey { get => DestinationObjectKey; set => throw new NotSupportedException(); }
+        string IHasObjectKey.ObjectKey => DestinationObjectKey;
         public Payer RequestPayer { get; set; }
         public SseAlgorithm SseAlgorithm { get; set; }
         public string? SseKmsKeyId { get; set; }
-        public KmsContextBuilder SseContext { get; set; }
+        public KmsContextBuilder SseContext { get; }
         public SseCustomerAlgorithm SseCustomerAlgorithm { get; set; }
+
         public byte[]? SseCustomerKey
         {
             get => _sseCustomerKey;
@@ -86,18 +79,28 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Objects
                 Array.Clear(_sseCustomerKey, 0, _sseCustomerKey.Length);
                 _sseCustomerKey = null;
             }
-        }        public byte[]? SseCustomerKeyMd5 { get; set; }
+        }
+
+        public byte[]? SseCustomerKeyMd5 { get; set; }
         public StorageClass StorageClass { get; set; }
         public TagBuilder Tags { get; }
         public string? VersionId { get; set; }
         public string? WebsiteRedirectLocation { get; set; }
 
+        internal void Initialize(string sourceBucketName, string sourceObjectKey, string destinationBucketName, string destinationObjectKey)
+        {
+            SourceBucketName = sourceBucketName;
+            SourceObjectKey = sourceObjectKey;
+            DestinationBucketName = destinationBucketName;
+            DestinationObjectKey = destinationObjectKey;
+        }
+
         public override void Reset()
         {
             ClearSensitiveMaterial();
 
-            MetadataDirective = MetadataDirective.Unknown;
-            TaggingDirective = TaggingDirective.Unknown;
+            MetadataDirective = MetadataDirective.Copy;
+            TaggingDirective = TaggingDirective.Copy;
             IfModifiedSince = null;
             IfUnmodifiedSince = null;
             IfETagMatch.Reset();

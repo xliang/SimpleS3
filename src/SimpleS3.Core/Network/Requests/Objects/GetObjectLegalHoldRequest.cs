@@ -1,5 +1,5 @@
 ﻿using Genbox.SimpleS3.Core.Abstracts.Enums;
-using Genbox.SimpleS3.Core.Abstracts.Request;
+using Genbox.SimpleS3.Core.Common.Marshal;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Network.Requests.Interfaces;
 
@@ -15,16 +15,16 @@ namespace Genbox.SimpleS3.Core.Network.Requests.Objects
             Initialize(bucketName, objectKey);
         }
 
+        public string BucketName { get; set; }
+        public string ObjectKey { get; set; }
+        public Payer RequestPayer { get; set; }
+        public string? VersionId { get; set; }
+
         internal void Initialize(string bucketName, string objectKey)
         {
             BucketName = bucketName;
             ObjectKey = objectKey;
         }
-
-        public string BucketName { get; set; }
-        public string ObjectKey { get; set; }
-        public Payer RequestPayer { get; set; }
-        public string? VersionId { get; set; }
 
         public override void Reset()
         {

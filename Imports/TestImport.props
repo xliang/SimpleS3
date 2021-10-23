@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
   </PropertyGroup>
 
   <ItemGroup>
@@ -9,17 +10,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" PrivateAssets="all" />
     <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.1.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3" PrivateAssets="all" />
+    <PackageReference Include="MartinCostello.Logging.XUnit" Version="0.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Condition="$(MSBuildProjectName) != 'SimpleS3.TestBase'" Include="..\SimpleS3.TestBase\SimpleS3.TestBase.csproj" />
+    <ProjectReference Condition="$(MSBuildProjectName) != 'SimpleS3.Core.TestBase'" Include="..\SimpleS3.Core.TestBase\SimpleS3.Core.TestBase.csproj" />
   </ItemGroup>
 
 </Project>

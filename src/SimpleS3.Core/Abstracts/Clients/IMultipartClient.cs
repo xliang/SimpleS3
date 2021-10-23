@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Genbox.SimpleS3.Core.Abstracts.Operations;
-using Genbox.SimpleS3.Core.ErrorHandling.Status;
 using Genbox.SimpleS3.Core.Network.Requests.Multipart;
 using Genbox.SimpleS3.Core.Network.Responses.Multipart;
 using JetBrains.Annotations;
@@ -14,8 +12,6 @@ namespace Genbox.SimpleS3.Core.Abstracts.Clients
     [PublicAPI]
     public interface IMultipartClient
     {
-        IMultipartOperations MultipartOperations { get; }
-
         /// <summary>
         /// Create a multipart upload. Once created, you can start uploading parts to it. Remember to call either
         /// <see cref="CompleteMultipartUploadAsync" /> or <see cref="AbortMultipartUploadAsync" /> when you are finished.
@@ -48,6 +44,7 @@ namespace Genbox.SimpleS3.Core.Abstracts.Clients
         /// <param name="bucketName">Name of the bucket</param>
         /// <param name="objectKey">The key of the object</param>
         /// <param name="uploadId">The upload id of the multipart upload</param>
+        /// <param name="parts">All the parts that should be included in the multipart transfer</param>
         /// <param name="config">A delegate to configure the request</param>
         /// <param name="token">A cancellation token</param>
         Task<CompleteMultipartUploadResponse> CompleteMultipartUploadAsync(string bucketName, string objectKey, string uploadId, IEnumerable<UploadPartResponse> parts, Action<CompleteMultipartUploadRequest>? config = null, CancellationToken token = default);
@@ -65,8 +62,5 @@ namespace Genbox.SimpleS3.Core.Abstracts.Clients
         /// <param name="config">A delegate to configure the request</param>
         /// <param name="token">A cancellation token</param>
         Task<ListMultipartUploadsResponse> ListMultipartUploadsAsync(string bucketName, Action<ListMultipartUploadsRequest>? config = null, CancellationToken token = default);
-
-        Task<MultipartUploadStatus> MultipartUploadAsync(string bucketName, string objectKey, Stream data, int partSize = 16777216, int numParallelParts = 4, Action<CreateMultipartUploadRequest>? config = null, CancellationToken token = default);
-        Task<MultipartDownloadStatus> MultipartDownloadAsync(string bucketName, string objectKey, Stream output, int bufferSize = 16777216, int numParallelParts = 4, CancellationToken token = default);
     }
 }

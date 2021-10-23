@@ -30,22 +30,19 @@ namespace Genbox.SimpleS3.Cli.CommandLineUtils
         {
             StoreExceptionHandler exceptionHandler = new StoreExceptionHandler();
             CommandLineState state = new CommandLineState(args);
-            hostBuilder.ConfigureServices(
-                (context, services)
+            hostBuilder.ConfigureServices((context, services)
                     =>
                 {
                     services.AddSingleton<IUnhandledExceptionHandler>(exceptionHandler);
-                    services
-                        .AddSingleton<IHostLifetime, CommandLineLifetime>()
-                        .AddSingleton(PhysicalConsole.Singleton);
-                    services
-                        .AddSingleton(provider =>
-                        {
-                            state.SetConsole(provider.GetService<IConsole>());
-                            return state;
-                        })
-                        .AddSingleton<CommandLineContext>(state)
-                        .AddSingleton<ICommandLineService, CommandLineService<TApp>>();
+                    services.AddSingleton<IHostLifetime, CommandLineLifetime>()
+                            .AddSingleton(PhysicalConsole.Singleton);
+                    services.AddSingleton(provider =>
+                            {
+                                state.SetConsole(provider.GetRequiredService<IConsole>());
+                                return state;
+                            })
+                            .AddSingleton<CommandLineContext>(state)
+                            .AddSingleton<ICommandLineService, CommandLineService<TApp>>();
                 });
 
             using IHost host = hostBuilder.Build();

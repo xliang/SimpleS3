@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Genbox.SimpleS3.Abstracts;
+using Genbox.SimpleS3.Core.Abstracts;
 using Genbox.SimpleS3.Core.Common.Exceptions;
+using Genbox.SimpleS3.Core.Common.Pools;
 using Genbox.SimpleS3.Core.Common.Validation;
 using Genbox.SimpleS3.Core.Network.Responses;
 
@@ -11,16 +12,16 @@ namespace Genbox.SimpleS3.Cli.Core.Helpers
 {
     public static class RequestHelper
     {
-        public static async Task<T> ExecuteRequestAsync<T>(IClient client, Func<IClient, Task<T>> func) where T : BaseResponse
+        public static async Task<T> ExecuteRequestAsync<T>(ISimpleClient client, Func<ISimpleClient, Task<T>> func) where T : BaseResponse
         {
             Validator.RequireNotNull(func, nameof(func));
 
             T resp = await func(client).ConfigureAwait(false);
 
-            if (resp.IsSuccess)
+            if (resp.StatusCode == 200)
                 return resp;
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = StringBuilderPool.Shared.Rent();
             sb.Append("Request failed with error ").Append(resp.StatusCode).AppendLine();
 
             if (resp.Error != null)
@@ -33,24 +34,14 @@ namespace Genbox.SimpleS3.Cli.Core.Helpers
                     sb.Append("Details: ").Append(extraData).AppendLine();
             }
 
-            throw new S3Exception(sb.ToString());
+            throw new S3Exception(StringBuilderPool.Shared.ReturnString(sb));
         }
 
-        public static IAsyncEnumerable<T> ExecuteAsyncEnumerable<T>(IClient client, Func<IClient, IAsyncEnumerable<T>> func)
+        public static IAsyncEnumerable<T> ExecuteAsyncEnumerable<T>(ISimpleClient client, Func<ISimpleClient, IAsyncEnumerable<T>> func)
         {
             Validator.RequireNotNull(func, nameof(func));
 
-            //IAsyncEnumerator<T> enumerator = func(client).GetAsyncEnumerator();
-
             return func(client);
-
-            //bool next;
-
-            //do
-            //{
-            //    next = await enumerator.MoveNextAsync().ConfigureAwait(false);
-            //    yield return enumerator.Current;
-            //} while (next);
         }
     }
 }

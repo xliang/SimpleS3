@@ -11,7 +11,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Genbox.SimpleS3.Cli.CommandLineUtils
 {
-    internal class CommandLineService<T> : IDisposable, ICommandLineService where T : class
+    internal sealed class CommandLineService<T> : IDisposable, ICommandLineService where T : class
     {
         private readonly CommandLineApplication _application;
         private readonly ILogger _logger;

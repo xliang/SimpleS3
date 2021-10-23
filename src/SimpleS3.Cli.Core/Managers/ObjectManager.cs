@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Genbox.SimpleS3.Abstracts;
 using Genbox.SimpleS3.Cli.Core.Enums;
 using Genbox.SimpleS3.Cli.Core.Exceptions;
 using Genbox.SimpleS3.Cli.Core.Helpers;
+using Genbox.SimpleS3.Core.Abstracts;
 using Genbox.SimpleS3.Core.Common.Exceptions;
 using Genbox.SimpleS3.Core.Common.Validation;
 using Genbox.SimpleS3.Core.Extensions;
@@ -18,9 +18,9 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
 {
     public class ObjectManager
     {
-        private readonly IClient _client;
+        private readonly ISimpleClient _client;
 
-        public ObjectManager(IClient client)
+        public ObjectManager(ISimpleClient client)
         {
             _client = client;
         }

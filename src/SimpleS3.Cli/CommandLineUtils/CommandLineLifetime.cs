@@ -11,16 +11,16 @@ using Microsoft.Extensions.Hosting;
 namespace Genbox.SimpleS3.Cli.CommandLineUtils
 {
     /// <summary>Waits from completion of the <see cref="CommandLineApplication" /> and initiates shutdown.</summary>
-    internal class CommandLineLifetime : IHostLifetime, IDisposable
+    internal sealed class CommandLineLifetime : IHostLifetime, IDisposable
     {
-        private readonly IApplicationLifetime _applicationLifetime;
+        private readonly IHostApplicationLifetime _applicationLifetime;
         private readonly ManualResetEvent _blockProcessExit = new ManualResetEvent(false);
         private readonly ICommandLineService _cliService;
         private readonly IConsole _console;
         private readonly IUnhandledExceptionHandler? _unhandledExceptionHandler;
 
         /// <summary>Creates a new instance.</summary>
-        public CommandLineLifetime(IApplicationLifetime applicationLifetime, ICommandLineService cliService, IConsole console, IUnhandledExceptionHandler? unhandledExceptionHandler = null)
+        public CommandLineLifetime(IHostApplicationLifetime applicationLifetime, ICommandLineService cliService, IConsole console, IUnhandledExceptionHandler? unhandledExceptionHandler = null)
         {
             _applicationLifetime = applicationLifetime;
             _cliService = cliService;

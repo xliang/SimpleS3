@@ -7,15 +7,15 @@ using McMaster.Extensions.CommandLineUtils;
 namespace Genbox.SimpleS3.Cli.Commands.Buckets
 {
     [Command(Description = "Delete all objects within a bucket")]
-    internal class EmptyCommand : CommandBase<Bucket>
+    internal class EmptyCommand : OnlineCommandBase
     {
         [Argument(0, Description = "Bucket name")]
         [Required]
-        public string BucketName { get; set; }
+        public string BucketName { get; set; } = null!;
 
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
-            await Manager.BucketManager.EmptyAsync(BucketName).ConfigureAwait(false);
+            await BucketManager.EmptyAsync(BucketName).ConfigureAwait(false);
             Console.WriteLine("Successfully emptied " + BucketName);
         }
     }

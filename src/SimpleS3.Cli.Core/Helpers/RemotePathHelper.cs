@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Text;
+using Genbox.SimpleS3.Core.Common.Pools;
 using Genbox.SimpleS3.Core.Common.Validation;
 
 namespace Genbox.SimpleS3.Cli.Core.Helpers
@@ -12,7 +13,7 @@ namespace Genbox.SimpleS3.Cli.Core.Helpers
             Validator.RequireNotNullOrEmpty(components, nameof(components));
             Validator.RequireThat(components.Any(x => x != null), nameof(components));
 
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = StringBuilderPool.Shared.Rent();
 
             for (int i = 0; i < components.Length; i++)
             {
@@ -27,7 +28,7 @@ namespace Genbox.SimpleS3.Cli.Core.Helpers
                     sb.Append('/');
             }
 
-            return sb.ToString();
+            return StringBuilderPool.Shared.ReturnString(sb);
         }
 
         public static string GetFileName(string path)

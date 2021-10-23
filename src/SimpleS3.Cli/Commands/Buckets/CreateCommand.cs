@@ -7,15 +7,15 @@ using McMaster.Extensions.CommandLineUtils;
 namespace Genbox.SimpleS3.Cli.Commands.Buckets
 {
     [Command(Description = "Create a bucket")]
-    internal class CreateCommand : CommandBase<Bucket>
+    internal class CreateCommand : OnlineCommandBase
     {
         [Argument(0)]
         [Required]
-        public string BucketName { get; set; }
+        public string BucketName { get; set; } = null!;
 
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
-            await Manager.BucketManager.CreateAsync(BucketName).ConfigureAwait(false);
+            await BucketManager.CreateAsync(BucketName).ConfigureAwait(false);
             Console.WriteLine("Successfully created " + BucketName);
         }
     }

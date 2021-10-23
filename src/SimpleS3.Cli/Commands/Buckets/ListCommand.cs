@@ -8,15 +8,15 @@ using McMaster.Extensions.CommandLineUtils;
 namespace Genbox.SimpleS3.Cli.Commands.Buckets
 {
     [Command(Description = "List all buckets you own")]
-    internal class ListCommand : CommandBase<Bucket>
+    internal class ListCommand : OnlineCommandBase
     {
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
             Console.WriteLine("{0,-21}{1}", "Created on", "Name");
 
-            await foreach (S3Bucket bucket in Manager.BucketManager.ListAsync(token))
+            await foreach (S3Bucket bucket in BucketManager.ListAsync(token))
             {
-                Console.WriteLine("{0,-21}{1}", bucket.CreatedOn.ToString("yyy-MM-dd hh:mm:ss", DateTimeFormatInfo.InvariantInfo), bucket.Name);
+                Console.WriteLine("{0,-21}{1}", bucket.CreatedOn.ToString("yyy-MM-dd hh:mm:ss", DateTimeFormatInfo.InvariantInfo), bucket.BucketName);
             }
         }
     }

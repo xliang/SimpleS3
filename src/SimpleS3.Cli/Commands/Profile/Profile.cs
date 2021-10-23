@@ -2,11 +2,11 @@
 using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
 
-namespace Genbox.SimpleS3.Cli.Commands.Buckets
+namespace Genbox.SimpleS3.Cli.Commands.Profile
 {
-    [Command("bucket")]
-    [Subcommand(typeof(CreateCommand), typeof(DeleteCommand), typeof(EmptyCommand), typeof(ListCommand))]
-    internal class Bucket : OnlineCommandBase
+    [Command("profile")]
+    [Subcommand(typeof(CreateCommand), typeof(ListCommand))]
+    internal class Profile : CommandBase
     {
         protected override Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {

@@ -2,8 +2,8 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Genbox.SimpleS3.Abstracts;
 using Genbox.SimpleS3.Cli.Core.Helpers;
+using Genbox.SimpleS3.Core.Abstracts;
 using Genbox.SimpleS3.Core.Common.Validation;
 using Genbox.SimpleS3.Core.Extensions;
 using Genbox.SimpleS3.Core.Network.Responses.Buckets;
@@ -13,9 +13,9 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
 {
     public class BucketManager
     {
-        private readonly IClient _client;
+        private readonly ISimpleClient _client;
 
-        public BucketManager(IClient client)
+        public BucketManager(ISimpleClient client)
         {
             _client = client;
         }
@@ -31,18 +31,25 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
         {
             Validator.RequireNotNullOrEmpty(bucketName, nameof(bucketName));
 
-            await _client.DeleteAllObjectsAsync(bucketName).ConfigureAwait(false);
+            await foreach (S3DeleteError _ in _client.DeleteAllObjectsAsync(bucketName).ConfigureAwait(false))
+            {
+
+            }
         }
 
         public async Task DeleteAsync(string bucketName)
         {
             Validator.RequireNotNullOrEmpty(bucketName, nameof(bucketName));
 
-            await _client.DeleteAllObjectsAsync(bucketName).ConfigureAwait(false);
+            await foreach (S3DeleteError _ in _client.DeleteAllObjectsAsync(bucketName).ConfigureAwait(false))
+            {
+
+            }
+
             await _client.DeleteBucketAsync(bucketName).ConfigureAwait(false);
         }
 
-        public async IAsyncEnumerable<S3Bucket> ListAsync([EnumeratorCancellation]CancellationToken token)
+        public async IAsyncEnumerable<S3Bucket> ListAsync([EnumeratorCancellation] CancellationToken token)
         {
             ListBucketsResponse resp = await RequestHelper.ExecuteRequestAsync(_client, c => c.ListBucketsAsync(null, token)).ConfigureAwait(false);
 

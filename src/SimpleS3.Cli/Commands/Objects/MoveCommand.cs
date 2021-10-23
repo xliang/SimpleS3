@@ -10,7 +10,7 @@ namespace Genbox.SimpleS3.Cli.Commands.Objects
     {
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
-            await Manager.ObjectManager.CopyAsync(Source, Destination).ConfigureAwait(false);
+            await ObjectManager.CopyAsync(Source, Destination).ConfigureAwait(false);
 
             Console.WriteLine($"Successfully moved {Source} to {Destination}");
         }

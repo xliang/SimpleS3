@@ -4,18 +4,17 @@ using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using Genbox.SimpleS3.Cli.Commands.Buckets;
 using Genbox.SimpleS3.Core.Network.Responses.S3Types;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace Genbox.SimpleS3.Cli.Commands.Objects
 {
     [Command(Description = "List the objects in a bucket")]
-    internal class ListCommand : CommandBase<Bucket>
+    internal class ListCommand : OnlineCommandBase
     {
         [Argument(0)]
         [Required]
-        public string BucketName { get; set; }
+        public string BucketName { get; set; } = null!;
 
         [Option("--include-details|-d", Description = "Show detailed output")]
         public bool IncludeDetails { get; set; }
@@ -25,7 +24,7 @@ namespace Genbox.SimpleS3.Cli.Commands.Objects
 
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
-            IAsyncEnumerator<S3Object> list = Manager.ObjectManager.ListAsync(BucketName, IncludeOwner).GetAsyncEnumerator(token);
+            IAsyncEnumerator<S3Object> list = ObjectManager.ListAsync(BucketName, IncludeOwner).GetAsyncEnumerator(token);
 
             bool hasData = await list.MoveNextAsync().ConfigureAwait(false);
 
@@ -56,7 +55,7 @@ namespace Genbox.SimpleS3.Cli.Commands.Objects
                     {
                         if (IncludeOwner)
                         {
-                            string ownerInfo = string.Empty;
+                            string? ownerInfo = null;
 
                             if (obj.Owner != null)
                                 ownerInfo = obj.Owner.Name;

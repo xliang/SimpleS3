@@ -1,8 +1,9 @@
-﻿#if COMMERCIAL
+#if COMMERCIAL
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Genbox.SimpleS3.Core.Abstracts.Clients;
+using Genbox.SimpleS3.Core.Common.Exceptions;
 using Genbox.SimpleS3.Core.Common.Validation;
 using Genbox.SimpleS3.Core.Network.Responses.Multipart;
 using Genbox.SimpleS3.Core.Network.Responses.S3Types;
@@ -27,6 +28,9 @@ namespace Genbox.SimpleS3.Core.Extensions
 
                 string? marker = uploadIdMarker;
                 response = await client.ListMultipartUploadsAsync(bucketName, req => req.UploadIdMarker = marker, token).ConfigureAwait(false);
+
+                if (!response.IsSuccess)
+                    throw new S3ResponseException(response, "Failed to list multipart uploads");
 
                 foreach (S3Upload responseObject in response.Uploads)
                 {

@@ -4,8 +4,8 @@ using McMaster.Extensions.CommandLineUtils;
 namespace Genbox.SimpleS3.Cli.CommandLineUtils
 {
     /// <summary>
-    /// Used by <see cref="CommandLineLifetime" /> to handle exceptions that are emitted from the <see cref="CommandLineApplication{TModel}" /> e.g.
-    /// during parsing or execution
+    /// Used by <see cref="CommandLineLifetime" /> to handle exceptions that are emitted from the
+    /// <see cref="CommandLineApplication{TModel}" /> e.g. during parsing or execution
     /// </summary>
     public interface IUnhandledExceptionHandler
     {

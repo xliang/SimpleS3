@@ -9,6 +9,9 @@ namespace Genbox.SimpleS3.Cli.Commands
 {
     public abstract class OnlineCommandBase : CommandBase
     {
+        protected BucketManager BucketManager => ServiceManager!.BucketManager;
+        protected ObjectManager ObjectManager => ServiceManager!.ObjectManager;
+
         protected override Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
             if (app.Parent!.Parent is not CommandLineApplication<S3Cli> parent)
@@ -25,14 +28,9 @@ namespace Genbox.SimpleS3.Cli.Commands
             IProfile? profile = ServiceManager!.ProfileManager.GetProfile(cli.ProfileName);
 
             if (profile == null)
-            {
                 Console.WriteLine("You have not yet setup a profile");
-            }
 
             return Task.CompletedTask;
         }
-
-        protected BucketManager BucketManager => ServiceManager!.BucketManager;
-        protected ObjectManager ObjectManager => ServiceManager!.ObjectManager;
     }
 }

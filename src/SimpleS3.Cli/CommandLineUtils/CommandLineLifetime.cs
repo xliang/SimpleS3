@@ -42,9 +42,9 @@ namespace Genbox.SimpleS3.Cli.CommandLineUtils
         }
 
         /// <summary>
-        /// Registers an <code>ApplicationStarted</code> hook that runs the <see cref="ICommandLineService" />. This ensures the container and all
-        /// hosted services are started before the <see cref="CommandLineApplication" /> is run.  After the <code>ICliService</code> completes, the
-        /// <code>ExitCode</code> is recorded and the application is stopped.
+        /// Registers an <code>ApplicationStarted</code> hook that runs the <see cref="ICommandLineService" />. This
+        /// ensures the container and all hosted services are started before the <see cref="CommandLineApplication" /> is run.
+        /// After the <code>ICliService</code> completes, the <code>ExitCode</code> is recorded and the application is stopped.
         /// </summary>
         /// <param name="cancellationToken">Used to indicate when stop should no longer be graceful.</param>
         /// <returns></returns>

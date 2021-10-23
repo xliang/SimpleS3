@@ -31,25 +31,19 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
         {
             Validator.RequireNotNullOrEmpty(bucketName, nameof(bucketName));
 
-            await foreach (S3DeleteError _ in _client.DeleteAllObjectsAsync(bucketName).ConfigureAwait(false))
-            {
-
-            }
+            await foreach (S3DeleteError _ in _client.DeleteAllObjectsAsync(bucketName).ConfigureAwait(false)) { }
         }
 
         public async Task DeleteAsync(string bucketName)
         {
             Validator.RequireNotNullOrEmpty(bucketName, nameof(bucketName));
 
-            await foreach (S3DeleteError _ in _client.DeleteAllObjectsAsync(bucketName).ConfigureAwait(false))
-            {
-
-            }
+            await foreach (S3DeleteError _ in _client.DeleteAllObjectsAsync(bucketName).ConfigureAwait(false)) { }
 
             await _client.DeleteBucketAsync(bucketName).ConfigureAwait(false);
         }
 
-        public async IAsyncEnumerable<S3Bucket> ListAsync([EnumeratorCancellation] CancellationToken token)
+        public async IAsyncEnumerable<S3Bucket> ListAsync([EnumeratorCancellation]CancellationToken token)
         {
             ListBucketsResponse resp = await RequestHelper.ExecuteRequestAsync(_client, c => c.ListBucketsAsync(null, token)).ConfigureAwait(false);
 

@@ -6,12 +6,8 @@ namespace Genbox.SimpleS3.Cli.Core
 {
     public class NullUrlBuilder : IUrlBuilder
     {
-        public void AppendHost<TReq>(StringBuilder sb, TReq request) where TReq : IRequest
-        {
-        }
+        public void AppendHost<TReq>(StringBuilder sb, TReq request) where TReq : IRequest { }
 
-        public void AppendUrl<TReq>(StringBuilder sb, TReq request) where TReq : IRequest
-        {
-        }
+        public void AppendUrl<TReq>(StringBuilder sb, TReq request) where TReq : IRequest { }
     }
 }

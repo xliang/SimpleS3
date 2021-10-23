@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using Genbox.SimpleS3.Cli.Core.Managers;
 using Genbox.SimpleS3.Core.Abstracts;
-using Genbox.SimpleS3.Core.Abstracts.Region;
 using Genbox.SimpleS3.Core.Common.Extensions;
 using Genbox.SimpleS3.Core.Extensions;
 using Genbox.SimpleS3.Extensions.AmazonS3.Extensions;
@@ -15,11 +14,11 @@ namespace Genbox.SimpleS3.Cli.Core
 {
     public class ServiceManager
     {
-        private readonly ServiceProvider _provider;
         private static ServiceManager? _serviceManager;
-        private IProfileManager? _profileManager;
-        private ObjectManager? _objectManager;
+        private readonly ServiceProvider _provider;
         private BucketManager? _bucketManager;
+        private ObjectManager? _objectManager;
+        private IProfileManager? _profileManager;
 
         private ServiceManager(string? profileName, string? endpoint)
         {

@@ -16,8 +16,9 @@ namespace Genbox.SimpleS3.Cli.CommandLineUtils
     public static class HostBuilderExtensions
     {
         /// <summary>
-        /// Runs an instance of <typeparamref name="TApp" /> using <see cref="CommandLineApplication" /> to provide command line parsing on the given
-        /// <paramref name="args" />.  This method should be the primary approach taken for command line applications.
+        /// Runs an instance of <typeparamref name="TApp" /> using <see cref="CommandLineApplication" /> to provide
+        /// command line parsing on the given <paramref name="args" />.  This method should be the primary approach taken for
+        /// command line applications.
         /// </summary>
         /// <typeparam name="TApp">The type of the command line application implementation</typeparam>
         /// <param name="hostBuilder">This instance</param>
@@ -25,25 +26,27 @@ namespace Genbox.SimpleS3.Cli.CommandLineUtils
         /// <param name="cancellationToken">A cancellation token</param>
         /// <returns>A task whose result is the exit code of the application</returns>
         public static async Task<int> RunCommandLineApplicationAsync<TApp>(
-            this IHostBuilder hostBuilder, string[] args, CancellationToken cancellationToken = default)
+            this IHostBuilder hostBuilder,
+            string[] args,
+            CancellationToken cancellationToken = default)
             where TApp : class
         {
             StoreExceptionHandler exceptionHandler = new StoreExceptionHandler();
             CommandLineState state = new CommandLineState(args);
             hostBuilder.ConfigureServices((context, services)
-                    =>
-                {
-                    services.AddSingleton<IUnhandledExceptionHandler>(exceptionHandler);
-                    services.AddSingleton<IHostLifetime, CommandLineLifetime>()
-                            .AddSingleton(PhysicalConsole.Singleton);
-                    services.AddSingleton(provider =>
-                            {
-                                state.SetConsole(provider.GetRequiredService<IConsole>());
-                                return state;
-                            })
-                            .AddSingleton<CommandLineContext>(state)
-                            .AddSingleton<ICommandLineService, CommandLineService<TApp>>();
-                });
+                =>
+            {
+                services.AddSingleton<IUnhandledExceptionHandler>(exceptionHandler);
+                services.AddSingleton<IHostLifetime, CommandLineLifetime>()
+                        .AddSingleton(PhysicalConsole.Singleton);
+                services.AddSingleton(provider =>
+                        {
+                            state.SetConsole(provider.GetRequiredService<IConsole>());
+                            return state;
+                        })
+                        .AddSingleton<CommandLineContext>(state)
+                        .AddSingleton<ICommandLineService, CommandLineService<TApp>>();
+            });
 
             using IHost host = hostBuilder.Build();
             await host.RunAsync(cancellationToken).ConfigureAwait(false);

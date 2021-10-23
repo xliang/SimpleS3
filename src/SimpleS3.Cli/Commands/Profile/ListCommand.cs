@@ -10,7 +10,7 @@ namespace Genbox.SimpleS3.Cli.Commands.Profile
     [Command(Description = "List all profiles")]
     internal class ListCommand : CommandBase
     {
-        protected override  Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
+        protected override Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
             Console.WriteLine("{0,-21}{1}", "Created on", "Name");
 

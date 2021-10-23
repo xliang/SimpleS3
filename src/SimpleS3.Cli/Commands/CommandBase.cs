@@ -9,6 +9,7 @@ namespace Genbox.SimpleS3.Cli.Commands
 {
     public abstract class CommandBase
     {
+        protected ServiceManager? ServiceManager { get; private set; }
         protected abstract Task ExecuteAsync(CommandLineApplication app, CancellationToken token);
 
         internal async Task<int> OnExecuteAsync(CommandLineApplication app, CancellationToken token)
@@ -38,7 +39,5 @@ namespace Genbox.SimpleS3.Cli.Commands
                 return 1;
             }
         }
-
-        protected ServiceManager? ServiceManager { get; private set; }
     }
 }

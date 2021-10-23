@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
+using Genbox.SimpleS3.Core.Network.Responses.S3Types;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace Genbox.SimpleS3.Cli.Commands.Buckets
@@ -13,10 +14,21 @@ namespace Genbox.SimpleS3.Cli.Commands.Buckets
         [Required]
         public string BucketName { get; set; } = null!;
 
+        [Option("-f|--force", Description = "Force delete the bucket")]
+        public bool Force { get; set; }
+
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
-            await BucketManager.DeleteAsync(BucketName).ConfigureAwait(false);
-            Console.WriteLine("Successfully emptied " + BucketName);
+            bool hasError = false;
+
+            await foreach (S3DeleteError error in BucketManager.DeleteAsync(BucketName, Force).ConfigureAwait(false))
+            {
+                hasError = true;
+                Console.WriteLine("Failed to delete " + error.ObjectKey);
+            }
+
+            if (!hasError)
+                Console.WriteLine("Successfully deleted " + BucketName);
         }
     }
 }

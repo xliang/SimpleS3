@@ -18,6 +18,9 @@ namespace Genbox.SimpleS3.Cli.Commands
         [Option("-e <endpoint>", Description = "Override the endpoint from the profile")]
         public string? Endpoint { get; set; }
 
+        [Option("--proxy <proxy>", Description = "Use this proxy for request")]
+        public string? ProxyUrl { get; set; }
+
         protected override Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
             // this shows help even if the --help option isn't specified

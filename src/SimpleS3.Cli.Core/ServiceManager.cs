@@ -20,15 +20,18 @@ namespace Genbox.SimpleS3.Cli.Core
         private ObjectManager? _objectManager;
         private IProfileManager? _profileManager;
 
-        private ServiceManager(string? profileName, string? endpoint)
+        private ServiceManager(string? profileName, string? endpoint, string? proxyUrl)
         {
             ServiceCollection services = new ServiceCollection();
             ICoreBuilder builder = SimpleS3CoreServices.AddSimpleS3Core(services);
 
             builder.UseProfileManager();
 
-            builder.UseHttpClientFactory()
-                   .UseDefaultHttpPolicy();
+            IHttpClientBuilder httpBuilder = builder.UseHttpClientFactory()
+                                                    .UseDefaultHttpPolicy();
+
+            if (proxyUrl != null)
+                httpBuilder.UseProxy(proxyUrl);
 
             if (profileName != null)
             {
@@ -57,6 +60,6 @@ namespace Genbox.SimpleS3.Cli.Core
         public BucketManager BucketManager => _bucketManager ??= _provider.GetRequiredService<BucketManager>();
         public ObjectManager ObjectManager => _objectManager ??= _provider.GetRequiredService<ObjectManager>();
         public IProfileManager ProfileManager => _profileManager ??= _provider.GetRequiredService<IProfileManager>();
-        public static ServiceManager GetInstance(string? profileName, string? endpoint) => _serviceManager ??= new ServiceManager(profileName, endpoint);
+        public static ServiceManager GetInstance(string? profileName, string? endpoint, string? proxyUrl) => _serviceManager ??= new ServiceManager(profileName, endpoint, proxyUrl);
     }
 }

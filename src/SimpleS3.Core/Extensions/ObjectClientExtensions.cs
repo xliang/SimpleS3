@@ -67,7 +67,7 @@ namespace Genbox.SimpleS3.Core.Extensions
                 response = await responseTask;
 
                 if (!response.IsSuccess)
-                    throw new S3RequestException(response, $"Unable to list objects in bucket '{bucketName}");
+                    throw new S3ResponseException(response, $"Unable to list objects in bucket '{bucketName}");
 
                 if (response.Objects.Count == 0)
                     yield break;
@@ -89,7 +89,7 @@ namespace Genbox.SimpleS3.Core.Extensions
                 pool.Return(delete);
 
                 if (!multiDelResponse.IsSuccess)
-                    throw new S3RequestException(response, $"Unable to delete objects in bucket '{bucketName}");
+                    throw new S3ResponseException(response, $"Unable to delete objects in bucket '{bucketName}");
 
                 foreach (S3DeleteError error in multiDelResponse.Errors)
                 {
@@ -114,7 +114,7 @@ namespace Genbox.SimpleS3.Core.Extensions
                 response = await responseTask;
 
                 if (!response.IsSuccess)
-                    throw new S3RequestException(response, $"Unable to list objects in bucket '{bucketName}");
+                    throw new S3ResponseException(response, $"Unable to list objects in bucket '{bucketName}");
 
                 if (response.Versions.Count + response.DeleteMarkers.Count == 0)
                     yield break;
@@ -135,7 +135,7 @@ namespace Genbox.SimpleS3.Core.Extensions
                 DeleteObjectsResponse multiDelResponse = await client.DeleteObjectsAsync(bucketName, delete, req => req.Quiet = false, token).ConfigureAwait(false);
 
                 if (!multiDelResponse.IsSuccess)
-                    throw new S3RequestException(response, $"Unable to delete objects in bucket '{bucketName}");
+                    throw new S3ResponseException(response, $"Unable to delete objects in bucket '{bucketName}");
 
                 foreach (S3DeleteError error in multiDelResponse.Errors)
                 {
@@ -209,7 +209,7 @@ namespace Genbox.SimpleS3.Core.Extensions
                 }, token).ConfigureAwait(false);
 
                 if (!response.IsSuccess)
-                    throw new S3RequestException(response, "Request failed");
+                    throw new S3ResponseException(response, "Request failed");
 
                 foreach (S3Object responseObject in response.Objects)
                 {

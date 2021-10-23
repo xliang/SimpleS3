@@ -26,7 +26,7 @@ namespace Genbox.SimpleS3.Cli.Commands
             if (s3Cli == null)
                 throw new S3Exception("Unable to find parent.");
 
-            ServiceManager = ServiceManager.GetInstance(s3Cli.ProfileName, s3Cli.Endpoint);
+            ServiceManager = ServiceManager.GetInstance(s3Cli.ProfileName, s3Cli.Endpoint, s3Cli.ProxyUrl);
 
             try
             {

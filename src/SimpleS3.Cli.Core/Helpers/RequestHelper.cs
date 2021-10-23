@@ -18,7 +18,7 @@ namespace Genbox.SimpleS3.Cli.Core.Helpers
 
             T resp = await func(client).ConfigureAwait(false);
 
-            if (resp.StatusCode == 200)
+            if (resp.IsSuccess)
                 return resp;
 
             StringBuilder sb = StringBuilderPool.Shared.Rent();

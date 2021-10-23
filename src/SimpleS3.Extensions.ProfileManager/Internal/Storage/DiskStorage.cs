@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using Genbox.SimpleS3.Core.Common.Exceptions;
 using Genbox.SimpleS3.Extensions.ProfileManager.Abstracts;
 using Microsoft.Extensions.Options;
@@ -42,6 +43,19 @@ namespace Genbox.SimpleS3.Extensions.ProfileManager.Internal.Storage
                 File.WriteAllBytes(path, data);
 
             return path;
+        }
+
+        public IEnumerable<string> List()
+        {
+            if (!Directory.Exists(_options.Value.ProfileLocation))
+                yield break;
+
+            string[] files = Directory.GetFiles(_options.Value.ProfileLocation);
+
+            foreach (string file in files)
+            {
+                yield return Path.GetFileName(file);
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Genbox.SimpleS3.Core.Abstracts;
 using Genbox.SimpleS3.Core.Abstracts.Authentication;
 using Genbox.SimpleS3.Core.Common.Exceptions;
@@ -79,6 +80,14 @@ namespace Genbox.SimpleS3.Extensions.ProfileManager
                 profile.Location = SaveProfile(profile);
 
             return profile;
+        }
+
+        public IEnumerable<IProfile> List()
+        {
+            foreach (string profileName in _storage.List())
+            {
+                yield return GetProfile(profileName)!;
+            }
         }
 
         public string SaveProfile(IProfile profile)

@@ -10,6 +10,14 @@ namespace Genbox.SimpleS3.Cli.Core.Exceptions
             ErrorType = errorType;
         }
 
+        public CommandException(ErrorType errorType, string message, string? value) : base(message)
+        {
+            ErrorType = errorType;
+            Value = value;
+        }
+
         public ErrorType ErrorType { get; }
+
+        public string? Value { get; }
     }
 }

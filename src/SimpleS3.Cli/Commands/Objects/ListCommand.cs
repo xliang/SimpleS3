@@ -9,17 +9,17 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace Genbox.SimpleS3.Cli.Commands.Objects
 {
-    [Command(Description = "List the objects in a bucket")]
+    [Command("list", Description = "List the objects in a bucket")]
     internal class ListCommand : OnlineCommandBase
     {
-        [Argument(0)]
+        [Argument(0, Description = "Bucket name")]
         [Required]
         public string BucketName { get; set; } = null!;
 
-        [Option("--include-details|-d", Description = "Show detailed output")]
+        [Option("-d|--details", Description = "Show detailed output")]
         public bool IncludeDetails { get; set; }
 
-        [Option("--include-owner|-o", Description = "Include owner information")]
+        [Option("-o|--owner", Description = "Show owner information")]
         public bool IncludeOwner { get; set; }
 
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
@@ -60,13 +60,13 @@ namespace Genbox.SimpleS3.Cli.Commands.Objects
                             if (obj.Owner != null)
                                 ownerInfo = obj.Owner.Name;
 
-                            Console.WriteLine("{0,-20}{1,-12}{2,-18}{3,-38}{4,-20}{5}", obj.LastModifiedOn.ToString("yyy-MM-dd hh:mm:ss", DateTimeFormatInfo.InvariantInfo), obj.Size, obj.StorageClass, obj.ETag!, ownerInfo, obj.ObjectKey);
+                            Console.WriteLine("{0,-20}{1,-12}{2,-18}{3,-38}{4,-20}{5}", obj.LastModified!.Value.ToString("yyy-MM-dd hh:mm:ss", DateTimeFormatInfo.InvariantInfo), obj.Size, obj.StorageClass, obj.ETag!, ownerInfo, obj.ObjectKey);
                         }
                         else
-                            Console.WriteLine("{0,-20}{1,-12}{2,-18}{3,-38}{4}", obj.LastModifiedOn.ToString("yyy-MM-dd hh:mm:ss", DateTimeFormatInfo.InvariantInfo), obj.Size, obj.StorageClass, obj.ETag!, obj.ObjectKey);
+                            Console.WriteLine("{0,-20}{1,-12}{2,-18}{3,-38}{4}", obj.LastModified!.Value.ToString("yyy-MM-dd hh:mm:ss", DateTimeFormatInfo.InvariantInfo), obj.Size, obj.StorageClass, obj.ETag!, obj.ObjectKey);
                     }
                     else
-                        Console.WriteLine("{0,-20}{1,-12}{2}", obj.LastModifiedOn.ToString("yyy-MM-dd hh:mm:ss", DateTimeFormatInfo.InvariantInfo), obj.Size, obj.ObjectKey);
+                        Console.WriteLine("{0,-20}{1,-12}{2}", obj.LastModified!.Value.ToString("yyy-MM-dd hh:mm:ss", DateTimeFormatInfo.InvariantInfo), obj.Size, obj.ObjectKey);
                 } while (await list.MoveNextAsync().ConfigureAwait(false));
             }
         }

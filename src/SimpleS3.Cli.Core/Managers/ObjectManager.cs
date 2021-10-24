@@ -1,16 +1,12 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 using Genbox.SimpleS3.Cli.Core.Enums;
 using Genbox.SimpleS3.Cli.Core.Exceptions;
 using Genbox.SimpleS3.Cli.Core.Helpers;
 using Genbox.SimpleS3.Core.Abstracts;
-using Genbox.SimpleS3.Core.Common.Exceptions;
 using Genbox.SimpleS3.Core.Common.Validation;
 using Genbox.SimpleS3.Core.Extensions;
-using Genbox.SimpleS3.Core.Network.Requests.S3Types;
 using Genbox.SimpleS3.Core.Network.Responses.Objects;
 using Genbox.SimpleS3.Core.Network.Responses.S3Types;
 
@@ -27,124 +23,117 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
 
         public async Task CopyAsync(string source, string destination)
         {
-            if (!ResourceHelper.TryParseResource(source, out (string? bucket, string resource, LocationType locationType, ResourceType resourceType) parsedSource))
-                throw new CommandException(ErrorType.Argument, $"Failed to parse source: {source}");
+            if (!ResourceHelper.TryParseResource(source, out (string? bucket, string resource, LocationType locationType, ResourceType resourceType) src))
+                throw new CommandException(ErrorType.Argument, CliErrorMessages.InvalidResource, source);
 
-            if (!ResourceHelper.TryParseResource(destination, out (string? bucket, string resource, LocationType locationType, ResourceType resourceType) parsedDestination))
-                throw new CommandException(ErrorType.Argument, $"Failed to parse destination: {destination}");
+            if (!ResourceHelper.TryParseResource(destination, out (string? bucket, string resource, LocationType locationType, ResourceType resourceType) dst))
+                throw new CommandException(ErrorType.Argument, CliErrorMessages.InvalidResource, destination);
 
-            if (parsedSource.bucket == null)
-                throw new S3Exception("Unable to parse bucket in source");
-
-            if (parsedDestination.bucket == null)
-                throw new S3Exception("Unable to parse bucket in destination");
-
-            if (parsedSource.locationType == LocationType.Local && parsedDestination.locationType == LocationType.Remote)
+            if (src.locationType == LocationType.Local && dst.locationType == LocationType.Remote)
             {
-                switch (parsedSource.resourceType)
+                if (dst.bucket == null)
+                    throw new CommandException(ErrorType.Argument, CliErrorMessages.BucketIsRequired, destination);
+
+                switch (src.resourceType)
                 {
                     case ResourceType.File:
                     {
                         string objectKey;
 
-                        switch (parsedDestination.resourceType)
+                        switch (dst.resourceType)
                         {
-                            //Source: Local file - Destination: remote file
+                            //Source: Local file - Destination: Remote file
                             case ResourceType.File:
-                                objectKey = parsedDestination.resource;
+                                objectKey = dst.resource;
                                 break;
 
-                            //Source: Local file - Destination: remote directory
+                            //Source: Local file - Destination: Remote directory
                             case ResourceType.Directory:
-                                objectKey = RemotePathHelper.Combine(parsedDestination.resource, LocalPathHelper.GetFileName(parsedSource.resource));
+                                objectKey = RemotePathHelper.Combine(dst.resource, LocalPathHelper.GetFileName(src.resource));
                                 break;
 
                             //We don't support expand on the destination
                             default:
-                                throw new ArgumentOutOfRangeException();
+                                throw new CommandException(ErrorType.Argument, CliErrorMessages.OperationNotSupported, source);
                         }
 
-                        using (FileStream fs = File.OpenRead(parsedSource.resource))
-                            await RequestHelper.ExecuteRequestAsync(_client, c => c.PutObjectAsync(parsedDestination.bucket, objectKey, fs)).ConfigureAwait(false);
-
+                        await RequestHelper.ExecuteRequestAsync(_client, c => c.PutObjectFileAsync(dst.bucket, objectKey, src.resource)).ConfigureAwait(false);
                         return;
                     }
                     case ResourceType.Directory:
                     {
-                        switch (parsedDestination.resourceType)
+                        switch (dst.resourceType)
                         {
                             //Source: Local directory - Destination: remote directory
                             case ResourceType.Directory:
-                                foreach (string file in Directory.GetFiles(parsedSource.resource))
+                                foreach (string file in Directory.GetFiles(src.resource))
                                 {
                                     string? directory = LocalPathHelper.GetDirectoryName(file);
                                     string name = LocalPathHelper.GetFileName(file);
-                                    string objectKey = RemotePathHelper.Combine(parsedDestination.resource, directory, name);
+                                    string objectKey = RemotePathHelper.Combine(dst.resource, directory, name);
 
-                                    using (FileStream fs = File.OpenRead(file))
-                                        await RequestHelper.ExecuteRequestAsync(_client, c => c.PutObjectAsync(parsedDestination.bucket, objectKey, fs)).ConfigureAwait(false);
+                                    await RequestHelper.ExecuteRequestAsync(_client, c => c.PutObjectFileAsync(dst.bucket, objectKey, file)).ConfigureAwait(false);
                                 }
 
                                 return;
 
                             //We don't support files or expand on the destination
                             default:
-                                throw new ArgumentOutOfRangeException();
+                                throw new CommandException(ErrorType.Argument, CliErrorMessages.OperationNotSupported, source);
                         }
                     }
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new CommandException(ErrorType.Argument, CliErrorMessages.OperationNotSupported, source);
                 }
             }
 
-            if (parsedSource.locationType == LocationType.Remote && parsedDestination.locationType == LocationType.Local)
+            if (src.locationType == LocationType.Remote && dst.locationType == LocationType.Local)
             {
-                switch (parsedSource.resourceType)
+                if (src.bucket == null)
+                    throw new CommandException(ErrorType.Argument, CliErrorMessages.BucketIsRequired, source);
+
+                switch (src.resourceType)
                 {
                     case ResourceType.File:
                     {
                         string localFile;
 
-                        switch (parsedDestination.resourceType)
+                        switch (dst.resourceType)
                         {
                             //Source: remote file - Destination: local file
                             case ResourceType.File:
-                                localFile = parsedDestination.resource;
+                                localFile = dst.resource;
                                 break;
 
                             //Source: remote file - Destination: local directory
                             case ResourceType.Directory:
-                                localFile = LocalPathHelper.Combine(parsedDestination.resource, RemotePathHelper.GetFileName(parsedSource.resource));
+                                localFile = LocalPathHelper.Combine(dst.resource, RemotePathHelper.GetFileName(src.resource));
                                 break;
 
                             //We don't support expand on the destination
                             default:
-                                throw new ArgumentOutOfRangeException();
+                                throw new CommandException(ErrorType.Argument, CliErrorMessages.OperationNotSupported, source);
                         }
 
-                        GetObjectResponse resp = await RequestHelper.ExecuteRequestAsync(_client, c => c.GetObjectAsync(parsedSource.bucket, parsedSource.resource)).ConfigureAwait(false);
-
-                        using (Stream s = resp.Content)
-                        using (FileStream fs = File.OpenWrite(localFile))
-                            await s.CopyToAsync(fs).ConfigureAwait(false);
-
+                        GetObjectResponse resp = await RequestHelper.ExecuteRequestAsync(_client, c => c.GetObjectAsync(src.bucket, src.resource)).ConfigureAwait(false);
+                        await resp.Content.CopyToFileAsync(localFile);
                         return;
                     }
                     case ResourceType.Directory:
                     {
-                        switch (parsedDestination.resourceType)
+                        switch (dst.resourceType)
                         {
                             //Source: remote directory - Destination: local directory
                             case ResourceType.Directory:
-                                await foreach (S3Object s3Object in RequestHelper.ExecuteAsyncEnumerable(_client, c => c.ListAllObjectsAsync(parsedSource.bucket, config: req =>
+                                await foreach (S3Object s3Object in RequestHelper.ExecuteAsyncEnumerable(_client, c => c.ListAllObjectsAsync(src.bucket, config: req =>
                                 {
-                                    req.Prefix = parsedSource.resource;
+                                    req.Prefix = src.resource;
                                 })))
                                 {
-                                    string destFolder = parsedDestination.resource;
-                                    string destFile = LocalPathHelper.Combine(destFolder, parsedDestination.resource, s3Object.ObjectKey);
+                                    string destFolder = dst.resource;
+                                    string destFile = LocalPathHelper.Combine(destFolder, dst.resource, s3Object.ObjectKey);
 
-                                    GetObjectResponse resp = await RequestHelper.ExecuteRequestAsync(_client, c => c.GetObjectAsync(parsedSource.bucket, s3Object.ObjectKey)).ConfigureAwait(false);
+                                    GetObjectResponse resp = await RequestHelper.ExecuteRequestAsync(_client, c => c.GetObjectAsync(src.bucket, s3Object.ObjectKey)).ConfigureAwait(false);
                                     await resp.Content.CopyToFileAsync(destFile).ConfigureAwait(false);
                                 }
 
@@ -152,11 +141,11 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
 
                             //We don't support file or expand on the destination
                             default:
-                                throw new ArgumentOutOfRangeException();
+                                throw new CommandException(ErrorType.Argument, CliErrorMessages.OperationNotSupported, source);
                         }
                     }
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new CommandException(ErrorType.Argument, CliErrorMessages.OperationNotSupported, source);
                 }
             }
         }
@@ -164,16 +153,21 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
         public async Task MoveAsync(string source, string destination)
         {
             await CopyAsync(source, destination).ConfigureAwait(false);
-            await DeleteAsync(source).ConfigureAwait(false);
+            IAsyncEnumerable<S3DeleteError> errors = DeleteAsync(source, false, false);
+
+            await foreach (S3DeleteError error in errors)
+            {
+                throw new CommandException(ErrorType.Error, CliErrorMessages.FailedToDelete, error.ObjectKey);
+            }
         }
 
-        public async Task DeleteAsync(string resource)
+        public async IAsyncEnumerable<S3DeleteError> DeleteAsync(string resource, bool includeVersions, bool force)
         {
             if (!ResourceHelper.TryParseResource(resource, out (string? bucket, string resource, LocationType locationType, ResourceType resourceType) parsed))
-                throw new CommandException(ErrorType.Argument, $"Failed to parse resource: {resource}");
+                throw new CommandException(ErrorType.Argument, CliErrorMessages.InvalidResource, resource);
 
             if (parsed.bucket == null)
-                throw new S3Exception("Unable to parse bucket");
+                throw new CommandException(ErrorType.Argument, CliErrorMessages.BucketIsRequired, resource);
 
             if (parsed.locationType == LocationType.Local)
             {
@@ -186,7 +180,7 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
                         Directory.Delete(parsed.resource, true);
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new CommandException(ErrorType.Argument, CliErrorMessages.ArgumentOutOfRange, parsed.resourceType.ToString());
                 }
             }
             else
@@ -197,29 +191,15 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
                         await RequestHelper.ExecuteRequestAsync(_client, c => c.DeleteObjectAsync(parsed.bucket, parsed.resource)).ConfigureAwait(false);
                         break;
                     case ResourceType.Directory:
-                        string? continuationToken = null;
-                        ListObjectsResponse response;
+                        IAsyncEnumerable<S3DeleteError> errors =  RequestHelper.ExecuteAsyncEnumerable(_client, c => includeVersions ? c.DeleteAllObjectVersionsAsync(parsed.bucket, parsed.resource) : c.DeleteAllObjectsAsync(parsed.bucket, parsed.resource));
 
-                        do
+                        await foreach (S3DeleteError error in errors)
                         {
-                            string? cToken = continuationToken;
-                            response = await RequestHelper.ExecuteRequestAsync(_client, c => c.ListObjectsAsync(parsed.bucket, req =>
-                            {
-                                req.ContinuationToken = cToken;
-                                req.Prefix = parsed.resource;
-                            })).ConfigureAwait(false);
-
-                            if (!response.IsSuccess)
-                                throw new CommandException(ErrorType.RequestError, "List request failed");
-
-                            await RequestHelper.ExecuteRequestAsync(_client, c => c.DeleteObjectsAsync(parsed.bucket, response.Objects.Select(x => new S3DeleteInfo(x.ObjectKey)))).ConfigureAwait(false);
-
-                            continuationToken = response.NextContinuationToken;
-                        } while (response.IsTruncated);
-
+                            yield return error;
+                        }
                         break;
                     default:
-                        throw new ArgumentOutOfRangeException();
+                        throw new CommandException(ErrorType.Argument, CliErrorMessages.OperationNotSupported, resource);
                 }
             }
         }
@@ -229,6 +209,13 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
             Validator.RequireNotNullOrEmpty(bucketName, nameof(bucketName));
 
             return RequestHelper.ExecuteAsyncEnumerable(_client, c => c.ListAllObjectsAsync(bucketName, includeOwner));
+        }
+
+        public IAsyncEnumerable<S3ObjectVersion> ListVersionsAsync(string bucketName)
+        {
+            Validator.RequireNotNullOrEmpty(bucketName, nameof(bucketName));
+
+            return RequestHelper.ExecuteAsyncEnumerable(_client, c => c.ListAllObjectVersionsAsync(bucketName));
         }
     }
 }

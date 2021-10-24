@@ -7,7 +7,7 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace Genbox.SimpleS3.Cli.Commands.Buckets
 {
-    [Command(Description = "Delete all objects within a bucket")]
+    [Command("empty", Description = "Delete all objects within a bucket")]
     internal class EmptyCommand : OnlineCommandBase
     {
         [Argument(0, Description = "Bucket name")]

@@ -5,7 +5,7 @@ using McMaster.Extensions.CommandLineUtils;
 namespace Genbox.SimpleS3.Cli.Commands.Objects
 {
     [Command("object")]
-    [Subcommand(typeof(CopyCommand), typeof(ListCommand), typeof(MoveCommand), typeof(RemoveCommand))]
+    [Subcommand(typeof(CopyCommand), typeof(ListCommand), typeof(ListVersionsCommand), typeof(MoveCommand), typeof(RemoveCommand))]
     internal class Object : CommandBase
     {
         protected override Task ExecuteAsync(CommandLineApplication app, CancellationToken token)

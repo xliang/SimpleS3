@@ -7,10 +7,10 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace Genbox.SimpleS3.Cli.Commands.Buckets
 {
-    [Command(Description = "Create a bucket")]
+    [Command("create", Description = "Create a bucket")]
     internal class CreateCommand : OnlineCommandBase
     {
-        [Argument(0)]
+        [Argument(0, Description = "Bucket name")]
         [Required]
         public string BucketName { get; set; } = null!;
 

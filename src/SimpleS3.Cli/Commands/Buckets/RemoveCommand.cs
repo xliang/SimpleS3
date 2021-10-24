@@ -7,8 +7,8 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace Genbox.SimpleS3.Cli.Commands.Buckets
 {
-    [Command(Description = "Delete all the objects in a bucket along with the bucket itself")]
-    internal class DeleteCommand : OnlineCommandBase
+    [Command("rm", Description = "Delete all the objects in a bucket along with the bucket itself")]
+    internal class RemoveCommand : OnlineCommandBase
     {
         [Argument(0, Description = "Bucket name")]
         [Required]
@@ -21,7 +21,7 @@ namespace Genbox.SimpleS3.Cli.Commands.Buckets
         {
             bool hasError = false;
 
-            await foreach (S3DeleteError error in BucketManager.DeleteAsync(BucketName, Force).ConfigureAwait(false))
+            await foreach (S3DeleteError error in BucketManager.DeleteAsync(BucketName, Force).WithCancellation(token))
             {
                 hasError = true;
                 Console.WriteLine("Failed to delete " + error.ObjectKey);

@@ -7,7 +7,7 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace Genbox.SimpleS3.Cli.Commands.Buckets
 {
-    [Command(Description = "List all buckets you own")]
+    [Command("list", Description = "List all buckets you own")]
     internal class ListCommand : OnlineCommandBase
     {
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)

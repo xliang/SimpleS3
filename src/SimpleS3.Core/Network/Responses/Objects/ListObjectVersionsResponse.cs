@@ -10,7 +10,7 @@ namespace Genbox.SimpleS3.Core.Network.Responses.Objects
     {
         public ListObjectVersionsResponse()
         {
-            Versions = new List<S3Version>();
+            Versions = new List<S3ObjectVersion>();
             DeleteMarkers = new List<S3DeleteMarker>();
             CommonPrefixes = new List<string>();
         }
@@ -19,7 +19,7 @@ namespace Genbox.SimpleS3.Core.Network.Responses.Objects
         public string VersionIdMarker { get; internal set; }
         public string NextKeyMarker { get; internal set; }
         public string NextVersionIdMarker { get; internal set; }
-        public IList<S3Version> Versions { get; }
+        public IList<S3ObjectVersion> Versions { get; }
         public IList<S3DeleteMarker> DeleteMarkers { get; }
         public string BucketName { get; internal set; }
         public int MaxKeys { get; internal set; }

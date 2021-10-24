@@ -5,12 +5,12 @@ using Genbox.SimpleS3.Core.Network.Responses.Interfaces;
 
 namespace Genbox.SimpleS3.Core.Network.Responses.S3Types
 {
-    public class S3Object : IHasStorageClass, IHasETag, IHasObjectKey
+    public class S3Object : IHasStorageClass, IHasETag, IHasObjectKey, IHasLastModified
     {
         public S3Object(string objectKey, DateTimeOffset lastModifiedOn, long size, S3Identity? owner, string? eTag, StorageClass storageClass)
         {
             ObjectKey = objectKey;
-            LastModifiedOn = lastModifiedOn;
+            LastModified = lastModifiedOn;
             Size = size;
             Owner = owner;
             ETag = eTag;
@@ -18,7 +18,7 @@ namespace Genbox.SimpleS3.Core.Network.Responses.S3Types
         }
 
         public string ObjectKey { get; internal set; }
-        public DateTimeOffset LastModifiedOn { get; }
+        public DateTimeOffset? LastModified { get; }
         public long Size { get; }
 
         public S3Identity? Owner { get; }

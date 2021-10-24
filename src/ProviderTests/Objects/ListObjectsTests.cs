@@ -41,7 +41,7 @@ namespace Genbox.ProviderTests.Objects
                 Assert.Equal(tempObjName, obj.ObjectKey);
                 Assert.Equal("\"5d41402abc4b2a76b9719d911017c592\"", obj.ETag);
                 Assert.Equal(5, obj.Size);
-                Assert.Equal(DateTime.UtcNow, obj.LastModifiedOn.UtcDateTime, TimeSpan.FromSeconds(5));
+                Assert.Equal(DateTime.UtcNow, obj.LastModified!.Value.UtcDateTime, TimeSpan.FromSeconds(5));
 
                 if (provider == S3Provider.AmazonS3)
                     Assert.Equal(StorageClass.Standard, obj.StorageClass);

@@ -78,7 +78,7 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Responses.Objects
                 response.Prefix = WebUtility.UrlDecode(response.Prefix);
                 response.Delimiter = WebUtility.UrlDecode(response.Delimiter);
 
-                foreach (S3Version version in response.Versions)
+                foreach (S3ObjectVersion version in response.Versions)
                 {
                     version.ObjectKey = WebUtility.UrlDecode(version.ObjectKey);
                 }
@@ -101,7 +101,7 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Responses.Objects
             throw new InvalidOperationException("Could not parse common prefix");
         }
 
-        private static S3Version ParseVersion(XmlReader xmlReader)
+        private static S3ObjectVersion ParseVersion(XmlReader xmlReader)
         {
             string? objectKey = null;
             string? versionId = null;
@@ -146,7 +146,7 @@ namespace Genbox.SimpleS3.Core.Internals.Marshallers.Responses.Objects
             if (objectKey == null || isLatest == null || lastModified == null || etag == null || size == -1)
                 throw new InvalidOperationException("Missing required values");
 
-            return new S3Version(objectKey, versionId, isLatest.Value, lastModified.Value, etag, size, owner, storageClass);
+            return new S3ObjectVersion(objectKey, versionId, isLatest.Value, lastModified.Value, etag, size, owner, storageClass);
         }
 
         private static S3DeleteMarker ParseDeleteMarker(XmlReader xmlReader)

@@ -48,12 +48,12 @@ namespace Genbox.ProviderTests.Objects
                 Assert.Equal(tempBucket, listResp.BucketName);
                 Assert.False(listResp.IsTruncated);
 
-                S3Version version1 = listResp.Versions[0];
+                S3ObjectVersion version1 = listResp.Versions[0];
                 Assert.Equal("1", version1.ObjectKey);
                 Assert.Equal(putResp1.VersionId, version1.VersionId);
                 Assert.True(version1.IsLatest);
-                Assert.Equal(DateTimeOffset.UtcNow.DateTime, version1.LastModified.DateTime, TimeSpan.FromMinutes(1));
-                Assert.Equal("\"0cc175b9c0f1b6a831c399e269772661\"", version1.Etag);
+                Assert.Equal(DateTimeOffset.UtcNow.DateTime, version1.LastModified!.Value.DateTime, TimeSpan.FromMinutes(1));
+                Assert.Equal("\"0cc175b9c0f1b6a831c399e269772661\"", version1.ETag);
                 Assert.Equal(1, version1.Size);
 
                 if (provider != S3Provider.GoogleCloudStorage)
@@ -65,12 +65,12 @@ namespace Genbox.ProviderTests.Objects
                     Assert.Equal(TestConstants.TestUsername, version1.Owner?.Name);
                 }
 
-                S3Version version2 = listResp.Versions[1];
+                S3ObjectVersion version2 = listResp.Versions[1];
                 Assert.Equal("2", version2.ObjectKey);
                 Assert.Equal(putResp2.VersionId, version2.VersionId);
                 Assert.False(version2.IsLatest);
-                Assert.Equal(DateTimeOffset.UtcNow.DateTime, version2.LastModified.DateTime, TimeSpan.FromMinutes(1));
-                Assert.Equal("\"4124bc0a9335c27f086f24ba207a4912\"", version2.Etag);
+                Assert.Equal(DateTimeOffset.UtcNow.DateTime, version2.LastModified!.Value.DateTime, TimeSpan.FromMinutes(1));
+                Assert.Equal("\"4124bc0a9335c27f086f24ba207a4912\"", version2.ETag);
                 Assert.Equal(2, version2.Size);
 
                 if (provider != S3Provider.GoogleCloudStorage)
@@ -83,12 +83,12 @@ namespace Genbox.ProviderTests.Objects
                 }
 
                 //This is the latest version of object 3 and should be 4 in size
-                S3Version version3 = listResp.Versions[2];
+                S3ObjectVersion version3 = listResp.Versions[2];
                 Assert.Equal("3", version3.ObjectKey);
                 Assert.Equal(putResp5.VersionId, version3.VersionId);
                 Assert.True(version3.IsLatest);
-                Assert.Equal(DateTimeOffset.UtcNow.DateTime, version3.LastModified.DateTime, TimeSpan.FromMinutes(1));
-                Assert.Equal("\"74b87337454200d4d33f80c4663dc5e5\"", version3.Etag);
+                Assert.Equal(DateTimeOffset.UtcNow.DateTime, version3.LastModified!.Value.DateTime, TimeSpan.FromMinutes(1));
+                Assert.Equal("\"74b87337454200d4d33f80c4663dc5e5\"", version3.ETag);
                 Assert.Equal(4, version3.Size);
 
                 if (provider != S3Provider.GoogleCloudStorage)
@@ -101,12 +101,12 @@ namespace Genbox.ProviderTests.Objects
                 }
 
                 //This was the previous version of object 3, so it should not be the latest and have 3 in size
-                S3Version version3A = listResp.Versions[3];
+                S3ObjectVersion version3A = listResp.Versions[3];
                 Assert.Equal("3", version3A.ObjectKey);
                 Assert.Equal(putResp3.VersionId, version3A.VersionId);
                 Assert.False(version3A.IsLatest);
-                Assert.Equal(DateTimeOffset.UtcNow.DateTime, version3A.LastModified.DateTime, TimeSpan.FromMinutes(1));
-                Assert.Equal("\"47bce5c74f589f4867dbd57e9ca9f808\"", version3A.Etag);
+                Assert.Equal(DateTimeOffset.UtcNow.DateTime, version3A.LastModified!.Value.DateTime, TimeSpan.FromMinutes(1));
+                Assert.Equal("\"47bce5c74f589f4867dbd57e9ca9f808\"", version3A.ETag);
                 Assert.Equal(3, version3A.Size);
 
                 if (provider != S3Provider.GoogleCloudStorage)
@@ -198,7 +198,7 @@ namespace Genbox.ProviderTests.Objects
 
                 Assert.Equal(EncodingType.Url, resp.EncodingType);
 
-                S3Version obj = Assert.Single(resp.Versions);
+                S3ObjectVersion obj = Assert.Single(resp.Versions);
 
                 Assert.Equal("%21%23/%28%29", obj.ObjectKey);
             }).ConfigureAwait(false);
@@ -221,7 +221,7 @@ namespace Genbox.ProviderTests.Objects
 
                 Assert.Equal("object", resp.Prefix);
 
-                S3Version obj = Assert.Single(resp.Versions);
+                S3ObjectVersion obj = Assert.Single(resp.Versions);
 
                 Assert.Equal(tempObjName, obj.ObjectKey);
             }).ConfigureAwait(false);

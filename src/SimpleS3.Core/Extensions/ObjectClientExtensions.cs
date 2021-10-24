@@ -48,7 +48,7 @@ namespace Genbox.SimpleS3.Core.Extensions
             return client.DeleteObjectsAsync(bucketName, objectKeys.Select(x => new S3DeleteInfo(x)), config, token);
         }
 
-        /// <summary>Delete all objects within the bucket</summary>
+        /// <summary>Delete all objects within a bucket</summary>
         public static async IAsyncEnumerable<S3DeleteError> DeleteAllObjectsAsync(this IObjectClient client, string bucketName, string? prefix = null, [EnumeratorCancellation]CancellationToken token = default)
         {
             Validator.RequireNotNull(client, nameof(client));
@@ -98,6 +98,7 @@ namespace Genbox.SimpleS3.Core.Extensions
             } while (response.IsTruncated);
         }
 
+        /// <summary>Delete all objects versions within a bucket</summary>
         public static async IAsyncEnumerable<S3DeleteError> DeleteAllObjectVersionsAsync(this IObjectClient client, string bucketName, string? prefix = null, [EnumeratorCancellation]CancellationToken token = default)
         {
             Validator.RequireNotNull(client, nameof(client));
@@ -179,7 +180,7 @@ namespace Genbox.SimpleS3.Core.Extensions
         }
 
         /// <summary>List all objects in a bucket</summary>
-        /// <param name="client">The BucketClient</param>
+        /// <param name="client">The IObjectClient</param>
         /// <param name="bucketName">The name of the bucket you want to list objects in.</param>
         /// <param name="getOwnerInfo">Set to true if you want to get object owner information as well.</param>
         /// <param name="config">Delegate to configure the ListObjectsRequest before sending it</param>
@@ -217,6 +218,44 @@ namespace Genbox.SimpleS3.Core.Extensions
                 }
 
                 continuationToken = response.NextContinuationToken;
+            } while (response.IsTruncated);
+        }
+
+        /// <summary>List all object versions in a bucket</summary>
+        /// <param name="client">The IObjectClient</param>
+        /// <param name="bucketName">The name of the bucket you want to list object versions in.</param>
+        /// <param name="config">Delegate to configure the ListObjectsRequest before sending it</param>
+        /// <param name="token">A cancellation token</param>
+        public static async IAsyncEnumerable<S3ObjectVersion> ListAllObjectVersionsAsync(this IObjectClient client, string bucketName, Action<ListObjectVersionsRequest>? config = null, [EnumeratorCancellation] CancellationToken token = default)
+        {
+            Validator.RequireNotNull(client, nameof(client));
+            Validator.RequireNotNullOrEmpty(bucketName, nameof(bucketName));
+
+            string? nextMarker = null;
+            ListObjectVersionsResponse response;
+
+            do
+            {
+                if (token.IsCancellationRequested)
+                    break;
+
+                string? currentMarker = nextMarker;
+                response = await client.ListObjectVersionsAsync(bucketName, req =>
+                {
+                    req.VersionIdMarker = currentMarker;
+                    
+                    config?.Invoke(req);
+                }, token).ConfigureAwait(false);
+
+                if (!response.IsSuccess)
+                    throw new S3ResponseException(response, "Request failed");
+
+                foreach (S3ObjectVersion responseObject in response.Versions)
+                {
+                    yield return responseObject;
+                }
+
+                nextMarker = response.NextVersionIdMarker;
             } while (response.IsTruncated);
         }
     }

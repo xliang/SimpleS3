@@ -13,7 +13,7 @@ namespace Genbox.SimpleS3.Cli.Core.Tests
         [InlineData("s3://bucket/directory/resource", "bucket", "directory/resource", LocationType.Remote, ResourceType.File)]
         public void Parse(string resource, string expectedBucket, string expectedResource, LocationType expectedLocationType, ResourceType expectedResourceType)
         {
-            Assert.True(ResourceHelper.TryParseResource(resource, out (string? bucket, string resource, LocationType locationType, ResourceType resourceType) data));
+            Assert.True(ResourceHelper.TryParsePath(resource, out (string? bucket, string resource, LocationType locationType, ResourceType resourceType) data));
 
             Assert.Equal(expectedBucket, data.bucket);
             Assert.Equal(expectedResource, data.resource);

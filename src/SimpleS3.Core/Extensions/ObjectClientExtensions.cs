@@ -185,7 +185,7 @@ namespace Genbox.SimpleS3.Core.Extensions
         /// <param name="getOwnerInfo">Set to true if you want to get object owner information as well.</param>
         /// <param name="config">Delegate to configure the ListObjectsRequest before sending it</param>
         /// <param name="token">A cancellation token</param>
-        public static async IAsyncEnumerable<S3Object> ListAllObjectsAsync(this IObjectClient client, string bucketName, bool getOwnerInfo = false, Action<ListObjectsRequest>? config = null, [EnumeratorCancellation]CancellationToken token = default)
+        public static async IAsyncEnumerable<S3Object> ListAllObjectsAsync(this IObjectClient client, string bucketName, Action<ListObjectsRequest>? config = null, [EnumeratorCancellation]CancellationToken token = default)
         {
             Validator.RequireNotNull(client, nameof(client));
             Validator.RequireNotNullOrEmpty(bucketName, nameof(bucketName));
@@ -202,9 +202,6 @@ namespace Genbox.SimpleS3.Core.Extensions
                 response = await client.ListObjectsAsync(bucketName, req =>
                 {
                     req.ContinuationToken = cToken;
-
-                    if (getOwnerInfo)
-                        req.FetchOwner = true;
 
                     config?.Invoke(req);
                 }, token).ConfigureAwait(false);
@@ -226,7 +223,7 @@ namespace Genbox.SimpleS3.Core.Extensions
         /// <param name="bucketName">The name of the bucket you want to list object versions in.</param>
         /// <param name="config">Delegate to configure the ListObjectsRequest before sending it</param>
         /// <param name="token">A cancellation token</param>
-        public static async IAsyncEnumerable<S3ObjectVersion> ListAllObjectVersionsAsync(this IObjectClient client, string bucketName, Action<ListObjectVersionsRequest>? config = null, [EnumeratorCancellation] CancellationToken token = default)
+        public static async IAsyncEnumerable<S3ObjectVersion> ListAllObjectVersionsAsync(this IObjectClient client, string bucketName, Action<ListObjectVersionsRequest>? config = null, [EnumeratorCancellation]CancellationToken token = default)
         {
             Validator.RequireNotNull(client, nameof(client));
             Validator.RequireNotNullOrEmpty(bucketName, nameof(bucketName));
@@ -243,7 +240,7 @@ namespace Genbox.SimpleS3.Core.Extensions
                 response = await client.ListObjectVersionsAsync(bucketName, req =>
                 {
                     req.VersionIdMarker = currentMarker;
-                    
+
                     config?.Invoke(req);
                 }, token).ConfigureAwait(false);
 

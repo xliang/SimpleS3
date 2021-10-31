@@ -24,7 +24,11 @@ namespace Genbox.SimpleS3.Utility.TestSetup
 
             using ServiceProvider provider = UtilityHelper.CreateSimpleS3(selectedProvider, profileName, true);
 
-            IProfile profile = UtilityHelper.GetOrSetupProfile(provider, selectedProvider, profileName);
+            IProfile? profile = UtilityHelper.GetOrSetupProfile(provider, selectedProvider, profileName);
+
+            if (profile == null)
+                throw new InvalidOperationException("Enable to get profile");
+
             string bucketName = UtilityHelper.GetTestBucket(profile);
 
             IBucketClient bucketClient = provider.GetRequiredService<IBucketClient>();

@@ -30,7 +30,10 @@ namespace Genbox.SimpleS3.Utility.TestCleanup
 
             using ServiceProvider provider = UtilityHelper.CreateSimpleS3(s3Provider, profileName, true);
 
-            IProfile profile = UtilityHelper.GetOrSetupProfile(provider, s3Provider, profileName);
+            IProfile? profile = UtilityHelper.GetOrSetupProfile(provider, s3Provider, profileName);
+
+            if (profile == null)
+                throw new InvalidOperationException("Enable to get profile");
 
             ISimpleClient client = provider.GetRequiredService<ISimpleClient>();
 

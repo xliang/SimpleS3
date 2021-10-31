@@ -7,52 +7,66 @@ namespace Genbox.SimpleS3.Cli.Core.Helpers
 {
     public static class ResourceHelper
     {
-        public static bool TryParseResource(string resource, out (string? bucket, string resource, LocationType locationType, ResourceType resourceType) data)
+        public static bool TryParsePath(string path, out (string bucket, string resource, LocationType locationType, ResourceType resourceType) data)
         {
-            if (string.IsNullOrEmpty(resource))
+            if (string.IsNullOrEmpty(path))
             {
                 data = default;
                 return false;
             }
 
-            LocationType locationType = resource.StartsWith("s3://", StringComparison.OrdinalIgnoreCase) ? LocationType.Remote : LocationType.Local;
+            LocationType locationType = path.StartsWith("s3://", StringComparison.OrdinalIgnoreCase) ? LocationType.Remote : LocationType.Local;
             ResourceType resourceType;
 
             if (locationType == LocationType.Local)
             {
-                if (resource.Contains('*'))
+                if (path.Contains('*'))
                     resourceType = ResourceType.Expand;
                 else
                 {
-                    if (Directory.Exists(resource) || File.Exists(resource))
+                    if (Directory.Exists(path) || File.Exists(path))
                     {
-                        FileAttributes attr = File.GetAttributes(resource);
+                        FileAttributes attr = File.GetAttributes(path);
                         resourceType = attr.HasFlag(FileAttributes.Directory) ? ResourceType.Directory : ResourceType.File;
                     }
                     else
                     {
-                        if (resource.EndsWith(Path.DirectorySeparatorChar) || resource.EndsWith(Path.AltDirectorySeparatorChar))
+                        if (path.EndsWith(Path.DirectorySeparatorChar) || path.EndsWith(Path.AltDirectorySeparatorChar))
                             resourceType = ResourceType.Directory;
                         else
                             resourceType = ResourceType.File;
                     }
                 }
 
-                data = (null, resource, locationType, resourceType);
+                data = (string.Empty, path, locationType, resourceType);
             }
             else
             {
-                int indexOfSlash = resource.IndexOf('/', 5);
+                int indexOfSlash = path.IndexOf('/', 5);
 
-                string parsedBucket = resource.Substring(5, indexOfSlash - 5);
-                string parsedResource = resource.Substring(indexOfSlash + 1);
+                string parsedResource;
+                if (indexOfSlash != -1)
+                {
+                    parsedResource = path.Substring(indexOfSlash + 1);
 
-                if (parsedResource.Contains('*'))
-                    resourceType = ResourceType.Expand;
-                else if (parsedResource.EndsWith('/') || parsedResource.Length == 0)
-                    resourceType = ResourceType.Directory;
+                    if (parsedResource.EndsWith('*'))
+                    {
+                        resourceType = ResourceType.Expand;
+                        parsedResource = parsedResource.TrimEnd('*');
+                    }
+                    else if (parsedResource.EndsWith('/') || parsedResource.Length == 0)
+                        resourceType = ResourceType.Directory;
+                    else
+                        resourceType = ResourceType.File;
+                }
                 else
-                    resourceType = ResourceType.File;
+                {
+                    indexOfSlash = path.Length;
+                    parsedResource = string.Empty;
+                    resourceType = ResourceType.Directory;
+                }
+
+                string parsedBucket = path.Substring(5, indexOfSlash - 5);
 
                 data = (parsedBucket, parsedResource, locationType, resourceType);
             }

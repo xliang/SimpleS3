@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using Genbox.SimpleS3.Cli.Core.Enums;
-using Genbox.SimpleS3.Core.Common.Extensions;
 
 namespace Genbox.SimpleS3.Cli.Core.Helpers
 {
@@ -38,7 +37,14 @@ namespace Genbox.SimpleS3.Cli.Core.Helpers
                     }
                 }
 
-                data = (string.Empty, path, locationType, resourceType);
+                string? root = Path.GetPathRoot(path);
+
+                if (root == null)
+                    throw new ArgumentException("Unable to determine root of path", path);
+
+                string relative = Path.GetRelativePath(root, path);
+
+                data = (root, relative, locationType, resourceType);
             }
             else
             {

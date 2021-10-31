@@ -7,5 +7,6 @@
         public static string InvalidPath = "Invalid path";
         public static string OperationNotSupported = "Operation not supported";
         public static string FailedToDelete = "Failed to delete resource";
+        public static string ArgumentMustBeDirectory = "The argument must be a directory";
     }
 }

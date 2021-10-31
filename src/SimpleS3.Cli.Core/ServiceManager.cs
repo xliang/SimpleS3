@@ -19,6 +19,7 @@ namespace Genbox.SimpleS3.Cli.Core
         private BucketManager? _bucketManager;
         private ObjectManager? _objectManager;
         private IProfileManager? _profileManager;
+        private IProfileSetup? _consoleSetup;
 
         private ServiceManager(string? profileName, string? endpoint, string? proxyUrl)
         {
@@ -60,6 +61,8 @@ namespace Genbox.SimpleS3.Cli.Core
         public BucketManager BucketManager => _bucketManager ??= _provider.GetRequiredService<BucketManager>();
         public ObjectManager ObjectManager => _objectManager ??= _provider.GetRequiredService<ObjectManager>();
         public IProfileManager ProfileManager => _profileManager ??= _provider.GetRequiredService<IProfileManager>();
+        public IProfileSetup ConsoleSetup => _consoleSetup ??= _provider.GetRequiredService<IProfileSetup>();
+    
         public static ServiceManager GetInstance(string? profileName, string? endpoint, string? proxyUrl) => _serviceManager ??= new ServiceManager(profileName, endpoint, proxyUrl);
     }
 }

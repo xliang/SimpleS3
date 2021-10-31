@@ -14,7 +14,7 @@ namespace Genbox.SimpleS3.Cli.Commands.Profile
         {
             Console.WriteLine("{0,-21}{1}", "Created on", "Name");
 
-            foreach (IProfile profile in ServiceManager!.ProfileManager.List())
+            foreach (IProfile profile in ServiceManager.ProfileManager.List())
             {
                 Console.WriteLine("{0,-21}{1}", profile.CreatedOn.ToString("yyy-MM-dd hh:mm:ss", DateTimeFormatInfo.InvariantInfo), profile.Name);
             }

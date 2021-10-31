@@ -116,7 +116,7 @@ namespace Genbox.SimpleS3.Utility.Shared
             return services.BuildServiceProvider();
         }
 
-        public static IProfile GetOrSetupProfile(IServiceProvider serviceProvider, S3Provider provider, string profileName)
+        public static IProfile? GetOrSetupProfile(IServiceProvider serviceProvider, S3Provider provider, string profileName)
         {
             //Check if there is a profile for this provider
             IProfileManager profileManager = serviceProvider.GetRequiredService<IProfileManager>();

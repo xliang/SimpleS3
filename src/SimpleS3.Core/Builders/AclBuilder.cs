@@ -157,7 +157,7 @@ namespace Genbox.SimpleS3.Core.Builders
 
             Validator.RequireNotNull(groupStr, nameof(group), "Bug: PredefinedGroup is missing EnumValue");
 
-            return AddGroup(groupStr!);
+            return AddGroup(groupStr);
         }
     }
 }

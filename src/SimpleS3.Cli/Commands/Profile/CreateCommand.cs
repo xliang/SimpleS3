@@ -2,6 +2,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
 using System.Threading.Tasks;
+using Genbox.SimpleS3.Extensions.ProfileManager.Abstracts;
 using McMaster.Extensions.CommandLineUtils;
 
 namespace Genbox.SimpleS3.Cli.Commands.Profile
@@ -15,7 +16,19 @@ namespace Genbox.SimpleS3.Cli.Commands.Profile
 
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
-            Console.WriteLine("Successfully created " + ProfileName);
+            IProfile? profile = ServiceManager.ProfileManager.GetProfile(ProfileName);
+
+            if (profile != null)
+                Console.WriteLine($"The profile '{ProfileName}' already exist.");
+            else
+            {
+                profile = ServiceManager.ConsoleSetup.SetupProfile(ProfileName);
+
+                if (profile == null)
+                    Console.WriteLine($"Failed to create create profile '{ProfileName}'");
+                else
+                    Console.WriteLine($"Successfully created '{ProfileName}'");
+            }
         }
     }
 }

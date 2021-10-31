@@ -223,7 +223,7 @@ namespace Genbox.ProviderTests.Multipart
                 GetObjectResponse getResp2 = await client.GetObjectAsync(bucket, nameof(MultipartUpload), r => r.PartNumber = 1).ConfigureAwait(false);
                 Assert.Equal(206, getResp2.StatusCode);
 
-                byte[] contentData = await getResp2.Content!.AsDataAsync().ConfigureAwait(false);
+                byte[] contentData = await getResp2.Content.AsDataAsync().ConfigureAwait(false);
                 Assert.Equal(parts[0].Length, contentData.Length);
                 Assert.Equal(parts[0], contentData);
             }

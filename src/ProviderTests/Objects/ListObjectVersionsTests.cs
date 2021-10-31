@@ -177,7 +177,7 @@ namespace Genbox.ProviderTests.Objects
                 Assert.True(resp.IsSuccess);
 
                 Assert.Equal("-", resp.Delimiter);
-                Assert.Equal(2, resp.CommonPrefixes!.Count);
+                Assert.Equal(2, resp.CommonPrefixes.Count);
                 Assert.Equal("object-", resp.CommonPrefixes[0]);
                 Assert.Equal("something-", resp.CommonPrefixes[1]);
             }).ConfigureAwait(false);

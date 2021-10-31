@@ -82,7 +82,7 @@ namespace Genbox.SimpleS3.Core.Common.Pools
         private static StringBuilderPool EnsureSharedCreated()
         {
             Interlocked.CompareExchange(ref _sharedInstance, new StringBuilderPool(), null);
-            return _sharedInstance!;
+            return _sharedInstance;
         }
 
         public StringBuilder Rent()

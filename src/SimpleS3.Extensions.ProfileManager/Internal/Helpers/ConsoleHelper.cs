@@ -6,9 +6,20 @@ namespace Genbox.SimpleS3.Extensions.ProfileManager.Internal.Helpers
     internal static class ConsoleHelper
     {
         /// <summary>
+        /// Read a string from Console.
+        /// </summary>
+        /// <returns>A trimmed input from the console</returns>
+        public static string? ReadString()
+        {
+            string? str = Console.ReadLine();
+            return str?.Trim();
+        }
+
+        /// <summary>
         /// Securely reads a secret from console. Not only does it print out '*' for each entry, it also reads it into a char[], which can be cleared,
         /// which strings cannot.
         /// </summary>
+        /// <returns>The string that was entered, but as a char array to avoid string interning.</returns>
         public static char[] ReadSecret(int expectedLength = 12)
         {
             List<char> pass = new List<char>(expectedLength);

@@ -3,7 +3,6 @@ using Genbox.SimpleS3.Core.Abstracts;
 using Genbox.SimpleS3.Extensions.ProfileManager.Abstracts;
 using Genbox.SimpleS3.Extensions.ProfileManager.Internal;
 using Genbox.SimpleS3.Extensions.ProfileManager.Internal.Serializers;
-using Genbox.SimpleS3.Extensions.ProfileManager.Internal.Setup;
 using Genbox.SimpleS3.Extensions.ProfileManager.Internal.Storage;
 using Microsoft.Extensions.DependencyInjection;
 

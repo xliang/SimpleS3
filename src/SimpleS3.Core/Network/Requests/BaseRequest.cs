@@ -35,7 +35,7 @@ namespace Genbox.SimpleS3.Core.Network.Requests
 
         public void SetHeader(string key, string value)
         {
-            _headers[key.ToLowerInvariant()] = value!;
+            _headers[key.ToLowerInvariant()] = value;
         }
     }
 }

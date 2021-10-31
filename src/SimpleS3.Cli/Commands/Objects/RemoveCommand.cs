@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Threading;
@@ -8,7 +8,7 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace Genbox.SimpleS3.Cli.Commands.Objects
 {
-    [Command("rm", Description = "Deletes an object")]
+    [Command("rm", Description = "Deletes one or more objects")]
     internal class RemoveCommand : OnlineCommandBase
     {
         [Argument(0, Description = "The object you want to delete. E.g. s3://bucket/object or s3://bucket/prefix/ to delete a whole prefix")]
@@ -23,6 +23,8 @@ namespace Genbox.SimpleS3.Cli.Commands.Objects
 
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
+            await base.ExecuteAsync(app, token);
+
             IAsyncEnumerable<S3DeleteError> errors = ObjectManager.DeleteAsync(Resource, IncludeVersions, Force);
 
             bool hasError = false;

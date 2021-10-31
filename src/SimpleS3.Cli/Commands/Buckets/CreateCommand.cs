@@ -22,6 +22,8 @@ namespace Genbox.SimpleS3.Cli.Commands.Buckets
 
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
+            await base.ExecuteAsync(app, token);
+
             await BucketManager.CreateAsync(BucketName, EnableLocking, CannedAcl).ConfigureAwait(false);
             Console.WriteLine("Successfully created " + BucketName);
         }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
@@ -9,12 +9,12 @@ using McMaster.Extensions.CommandLineUtils;
 
 namespace Genbox.SimpleS3.Cli.Commands.Objects
 {
-    [Command("list", Description = "List the objects in a bucket")]
+    [Command("ls", Description = "List the objects in a bucket")]
     internal class ListCommand : OnlineCommandBase
     {
-        [Argument(0, Description = "Bucket name")]
+        [Argument(0, Description = "Path. E.g: s3://mybucket/prefix/")]
         [Required]
-        public string BucketName { get; set; } = null!;
+        public string Path { get; set; } = null!;
 
         [Option("-d|--details", Description = "Show detailed output")]
         public bool IncludeDetails { get; set; }
@@ -24,7 +24,9 @@ namespace Genbox.SimpleS3.Cli.Commands.Objects
 
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
-            IAsyncEnumerator<S3Object> list = ObjectManager.ListAsync(BucketName, IncludeOwner).GetAsyncEnumerator(token);
+            await base.ExecuteAsync(app, token);
+
+            IAsyncEnumerator<S3Object> list = ObjectManager.ListAsync(Path, IncludeOwner).GetAsyncEnumerator(token);
 
             bool hasData = await list.MoveNextAsync().ConfigureAwait(false);
 

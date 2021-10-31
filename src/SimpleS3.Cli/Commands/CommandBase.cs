@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Genbox.SimpleS3.Cli.Core;
+using Genbox.SimpleS3.Cli.Exceptions;
 using Genbox.SimpleS3.Core.Common.Exceptions;
 using McMaster.Extensions.CommandLineUtils;
 
@@ -32,6 +33,16 @@ namespace Genbox.SimpleS3.Cli.Commands
             {
                 await ExecuteAsync(app, token).ConfigureAwait(false);
                 return 0;
+            }
+            catch (CliGenericRequiredException ex)
+            {
+                await Console.Error.WriteLineAsync(ex.Message);
+                return 1;
+            }
+            catch (CliParameterRequiredException ex)
+            {
+                await Console.Error.WriteLineAsync("Parameter is required: " + ex.ParameterName);
+                return 1;
             }
             catch (Exception ex)
             {

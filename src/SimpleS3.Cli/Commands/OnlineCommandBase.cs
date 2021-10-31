@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Genbox.SimpleS3.Cli.Core.Managers;
+using Genbox.SimpleS3.Cli.Exceptions;
 using Genbox.SimpleS3.Extensions.ProfileManager.Abstracts;
 using McMaster.Extensions.CommandLineUtils;
 
@@ -20,15 +21,12 @@ namespace Genbox.SimpleS3.Cli.Commands
             S3Cli cli = parent.Model;
 
             if (cli.ProfileName == null)
-            {
-                Console.Error.WriteLine("You must specify -p");
-                return Task.CompletedTask;
-            }
+                throw new CliParameterRequiredException("-p <profile>");
 
             IProfile? profile = ServiceManager.ProfileManager.GetProfile(cli.ProfileName);
 
             if (profile == null)
-                Console.WriteLine("You have not yet setup a profile");
+                throw new CliGenericRequiredException($"You have not yet setup the profile '{cli.ProfileName}'");
 
             return Task.CompletedTask;
         }

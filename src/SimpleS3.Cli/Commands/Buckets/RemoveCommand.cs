@@ -19,6 +19,8 @@ namespace Genbox.SimpleS3.Cli.Commands.Buckets
 
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
+            await base.ExecuteAsync(app, token);
+
             bool hasError = false;
 
             await foreach (S3DeleteError error in BucketManager.DeleteAsync(BucketName, Force).WithCancellation(token))

@@ -12,6 +12,8 @@ namespace Genbox.SimpleS3.Cli.Commands.Buckets
     {
         protected override async Task ExecuteAsync(CommandLineApplication app, CancellationToken token)
         {
+            await base.ExecuteAsync(app, token);
+
             Console.WriteLine("{0,-21}{1}", "Created on", "Name");
 
             await foreach (S3Bucket bucket in BucketManager.ListAsync(token))

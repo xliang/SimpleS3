@@ -217,7 +217,7 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
             }));
         }
 
-        public async Task SyncAsync(string source, string destination, int concurrentUploads)
+        public async Task SyncAsync(string source, string destination, int concurrentUploads, bool preserveTimestamps)
         {
             if (!ResourceHelper.TryParsePath(source, out (string bucket, string resource, LocationType locationType, ResourceType resourceType) src))
                 throw new CommandException(ErrorType.Argument, CliErrorMessages.InvalidPath, source);
@@ -294,7 +294,14 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
                     await ParallelHelper.ExecuteAsync(modifiedFiles, async (i, token) =>
                     {
                         GetObjectResponse resp = await _client.GetObjectAsync(src.bucket, RemotePathHelper.Combine(src.resource, sourceList[i].ComparisonKey), token: token);
-                        await resp.Content.CopyToFileAsync(LocalPathHelper.Combine(dst.bucket, dst.resource, sourceList[i].ComparisonKey));
+                        FileInfo info = new FileInfo(LocalPathHelper.Combine(dst.bucket, dst.resource, sourceList[i].ComparisonKey));
+
+                        await using (FileStream fs = info.OpenWrite())
+                            await resp.Content.CopyToAsync(fs, token);
+
+                        if (preserveTimestamps)
+                            info.LastWriteTime = resp.LastModified!.Value.UtcDateTime;
+
                     }, concurrentUploads);
 
                 //new

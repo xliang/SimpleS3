@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Enumeration;
 using System.Linq;
@@ -246,9 +245,9 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
             Dictionary<string, FileDateInfo> destinationList;
 
             if (dst.locationType == LocationType.Local)
-                destinationList = GetLocal(dst.bucket, dst.resource).ToDictionary(x => x.Filename, x => x);
+                destinationList = GetLocal(dst.bucket, dst.resource).ToDictionary(x => x.ComparisonKey, x => x);
             else if (dst.locationType == LocationType.Remote)
-                destinationList = await GetRemote(dst.bucket, dst.resource).ToDictionaryAsync(x => x.Filename, x => x);
+                destinationList = await GetRemote(dst.bucket, dst.resource).ToDictionaryAsync(x => x.ComparisonKey, x => x);
             else
                 throw new CommandException(ErrorType.Error, CliErrorMessages.ArgumentOutOfRange, "locationType");
 
@@ -261,14 +260,15 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
             for (int i = 0; i < sourceList.Count; i++)
             {
                 FileDateInfo srcFile = sourceList[i];
-                if (destinationList.TryGetValue(srcFile.Filename, out FileDateInfo dstFile))
+                string srcKey = srcFile.ComparisonKey;
+
+                if (destinationList.TryGetValue(srcKey, out FileDateInfo dstFile))
                 {
                     //The destination had the source file. Determine if it is modified.
                     if (srcFile.LastModified > dstFile.LastModified)
-                    {
                         modifiedFiles.Add(i);
-                        destinationList.Remove(srcFile.Filename);
-                    }
+
+                    destinationList.Remove(srcKey);
                 }
                 else
                 {
@@ -293,31 +293,31 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
                 if (modifiedFiles.Count > 0)
                     await ParallelHelper.ExecuteAsync(modifiedFiles, async (i, token) =>
                     {
-                        GetObjectResponse resp = await _client.GetObjectAsync(dst.bucket, sourceList[i].Filename, token: token);
-                        await resp.Content.CopyToFileAsync(sourceList[i].Filename);
+                        GetObjectResponse resp = await _client.GetObjectAsync(src.bucket, RemotePathHelper.Combine(src.resource, sourceList[i].ComparisonKey), token: token);
+                        await resp.Content.CopyToFileAsync(LocalPathHelper.Combine(dst.bucket, dst.resource, sourceList[i].ComparisonKey));
                     }, concurrentUploads);
 
                 //new
                 if (newFiles.Count > 0)
                     await ParallelHelper.ExecuteAsync(newFiles, async (i, token) =>
                     {
-                        GetObjectResponse resp = await _client.GetObjectAsync(dst.bucket, sourceList[i].Filename, token: token);
-                        await resp.Content.CopyToFileAsync(sourceList[i].Filename);
+                        GetObjectResponse resp = await _client.GetObjectAsync(src.bucket, RemotePathHelper.Combine(src.resource, sourceList[i].ComparisonKey), token: token);
+                        await resp.Content.CopyToFileAsync(LocalPathHelper.Combine(dst.bucket, dst.resource, sourceList[i].ComparisonKey));
                     }, concurrentUploads);
             }
             else if (dst.locationType == LocationType.Remote)
             {
                 //delete
                 if (destinationList.Count > 0)
-                    await _client.DeleteObjectsAsync(dst.bucket, destinationList.Select(x => x.Value.Filename));
+                    await _client.DeleteObjectsAsync(dst.bucket, destinationList.Select(x => RemotePathHelper.Combine(dst.resource, x.Value.ComparisonKey)));
 
                 //modified
                 if (modifiedFiles.Count > 0)
-                    await ParallelHelper.ExecuteAsync(modifiedFiles, (i, token) => _client.PutObjectFileAsync(dst.bucket, sourceList[i].Filename, sourceList[i].Filename, token: token), concurrentUploads);
+                    await ParallelHelper.ExecuteAsync(modifiedFiles, (i, token) => _client.PutObjectFileAsync(dst.bucket, RemotePathHelper.Combine(dst.resource, sourceList[i].ComparisonKey), sourceList[i].Filename, token: token), concurrentUploads);
 
                 //new
                 if (newFiles.Count > 0)
-                    await ParallelHelper.ExecuteAsync(newFiles, (i, token) => _client.PutObjectFileAsync(dst.bucket, sourceList[i].Filename, sourceList[i].Filename, token: token), concurrentUploads);
+                    await ParallelHelper.ExecuteAsync(newFiles, (i, token) => _client.PutObjectFileAsync(dst.bucket, RemotePathHelper.Combine(dst.resource, sourceList[i].ComparisonKey), sourceList[i].Filename, token: token), concurrentUploads);
             }
         }
 
@@ -325,18 +325,18 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
         {
             await foreach (S3Object obj in _client.ListAllObjectsAsync(bucket, req => req.Prefix = resource))
             {
-                yield return new FileDateInfo(obj.ObjectKey, obj.LastModified!.Value);
+                yield return new FileDateInfo(obj.ObjectKey.Remove(0, resource.Length), obj.ObjectKey, obj.LastModified!.Value);
             }
         }
 
         private IEnumerable<FileDateInfo> GetLocal(string bucket, string resource)
         {
-            string fullPath = Path.Combine(bucket, resource);
+            string fullPath = LocalPathHelper.Combine(bucket, resource);
 
             FileSystemEnumerable<FileDateInfo> enu = new FileSystemEnumerable<FileDateInfo>(fullPath, (ref FileSystemEntry entry) =>
             {
                 string path = entry.ToSpecifiedFullPath();
-                return new FileDateInfo(path, entry.LastWriteTimeUtc);
+                return new FileDateInfo(path.Remove(0, fullPath.Length), path, entry.LastWriteTimeUtc);
             }, new EnumerationOptions
             {
                 AttributesToSkip = FileAttributes.Offline | FileAttributes.ReparsePoint,
@@ -352,11 +352,14 @@ namespace Genbox.SimpleS3.Cli.Core.Managers
 
         private readonly struct FileDateInfo
         {
-            public FileDateInfo(string filename, DateTimeOffset lastModified)
+            public FileDateInfo(string comparisonKey, string filename, DateTimeOffset lastModified)
             {
+                ComparisonKey = comparisonKey;
                 Filename = filename;
                 LastModified = lastModified;
             }
+
+            public string ComparisonKey { get; }
 
             public string Filename { get; }
 

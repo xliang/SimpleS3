@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Genbox.ProviderTests.Extensions;
 using Genbox.SimpleS3.Core.Abstracts;
 using Genbox.SimpleS3.Core.Enums;
 using Genbox.SimpleS3.Core.Extensions;
@@ -184,6 +185,58 @@ namespace Genbox.ProviderTests.Objects
 
                 Assert.Equal(tempObjName, obj.ObjectKey);
             }).ConfigureAwait(false);
+        }
+
+        [Theory]
+        [MultipleProviders(S3Provider.BackBlazeB2 | S3Provider.Wasabi | S3Provider.GoogleCloudStorage | S3Provider.AmazonS3)]
+        public async Task ListObjectsSortOrder(S3Provider provider, string _, ISimpleClient client)
+        {
+            //In this test we check if we get objects in sorted order
+            //It also tests if we can put and get all printable characters without encoding issues
+
+            IEnumerable<char> GetPrintableChars()
+            {
+                for (uint i = char.MinValue; i < char.MaxValue; i++)
+                {
+
+                    char c = Convert.ToChar(i);
+                    if (char.IsLetterOrDigit(c))
+                    {
+                        yield return c;
+                    }
+                }
+            }
+
+            List<string> printableCharacters = GetPrintableChars().Take(100).Select(x => x.ToString()).ToList();
+            printableCharacters.Shuffle();
+
+            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            {
+                await ParallelHelper.ExecuteAsync(printableCharacters, async (c, token) =>
+                {
+                    await client.PutObjectStringAsync(tempBucket, c, string.Empty, null, null, token);
+                }, 32);
+
+                printableCharacters.Sort((s1, s2) => StringComparer.Ordinal.Compare(s1, s2));
+                List<string> objList = await client.ListAllObjectsAsync(tempBucket).Select(x => x.ObjectKey).ToListAsync();
+
+                Assert.Equal(printableCharacters.Count, objList.Count);
+
+                int errors = 0;
+
+                for (int index = 0; index < objList.Count; index++)
+                {
+                    string key1 = printableCharacters[index];
+                    string key2 = objList[index];
+
+                    if (!string.Equals(key1, key2, StringComparison.Ordinal))
+                        errors++;
+                }
+
+                Assert.Equal(0, errors);
+
+            }).ConfigureAwait(false);
+
         }
     }
 }

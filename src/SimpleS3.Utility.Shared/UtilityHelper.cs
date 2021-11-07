@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Genbox.SimpleS3.Core.Abstracts;
 using Genbox.SimpleS3.Core.Extensions;
+using Genbox.SimpleS3.Core.Internals.Helpers;
 using Genbox.SimpleS3.Core.Network.Requests.S3Types;
 using Genbox.SimpleS3.Core.Network.Responses.Multipart;
 using Genbox.SimpleS3.Core.Network.Responses.Objects;
@@ -205,10 +206,10 @@ namespace Genbox.SimpleS3.Utility.Shared
                 //Google does not support DeleteObjects
                 if (provider == S3Provider.GoogleCloudStorage)
                 {
-                    foreach (S3DeleteInfo info in delete)
+                    await ParallelHelper.ExecuteAsync(delete, async (info, token) =>
                     {
-                        await client.DeleteObjectAsync(bucket, info.ObjectKey, info.VersionId);
-                    }
+                        await client.DeleteObjectAsync(bucket, info.ObjectKey, info.VersionId, null, token);
+                    }, 32);
                 }
                 else
                 {

@@ -16,7 +16,7 @@ namespace Genbox.SimpleS3.Cli.Core.Helpers
 
         public static string Combine(params string[] components)
         {
-            return Path.Combine(components);
+            return PathHelper.Combine('/', '\\', components);
         }
     }
 }

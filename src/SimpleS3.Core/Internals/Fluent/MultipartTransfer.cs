@@ -124,7 +124,7 @@ namespace Genbox.SimpleS3.Core.Internals.Fluent
                 if (!initResp.IsSuccess)
                     throw new S3ResponseException(initResp, "CreateMultipartUploadRequest was unsuccessful");
 
-                IEnumerable<ArraySegment<byte>> chunks = ReadChunks(data, partSize);
+                IAsyncEnumerable<ArraySegment<byte>> chunks = ReadChunks(data, partSize);
 
                 int partNumber = 0;
 
@@ -132,17 +132,16 @@ namespace Genbox.SimpleS3.Core.Internals.Fluent
                 {
                     Interlocked.Increment(ref partNumber);
 
-                    using (MemoryStream ms = new MemoryStream(bytes.Array!, 0, bytes.Count))
+                    using MemoryStream ms = new MemoryStream(bytes.Array!, 0, bytes.Count);
+
+                    UploadPartResponse resp = await _multipartClient.UploadPartAsync(bucket, objectKey, partNumber, initResp.UploadId, ms, uploadPart =>
                     {
-                        UploadPartResponse resp = await _multipartClient.UploadPartAsync(bucket, objectKey, partNumber, initResp.UploadId, ms, uploadPart =>
-                        {
-                            uploadPart.SseCustomerAlgorithm = req.SseCustomerAlgorithm;
-                            uploadPart.SseCustomerKey = encryptionKey;
-                            uploadPart.SseCustomerKeyMd5 = req.SseCustomerKeyMd5;
-                        }, innerToken).ConfigureAwait(false);
-                        onPartResponse?.Invoke(resp);
-                        return resp;
-                    }
+                        uploadPart.SseCustomerAlgorithm = req.SseCustomerAlgorithm;
+                        uploadPart.SseCustomerKey = encryptionKey;
+                        uploadPart.SseCustomerKeyMd5 = req.SseCustomerKeyMd5;
+                    }, innerToken).ConfigureAwait(false);
+                    onPartResponse?.Invoke(resp);
+                    return resp;
                 }, numParallelParts, token);
 
                 CompleteMultipartUploadResponse completeResp = await _multipartClient.CompleteMultipartUploadAsync(bucket, objectKey, initResp.UploadId, responses.OrderBy(x => x.PartNumber), null, token).ConfigureAwait(false);
@@ -198,12 +197,12 @@ namespace Genbox.SimpleS3.Core.Internals.Fluent
             }
         }
 
-        private static IEnumerable<ArraySegment<byte>> ReadChunks(Stream data, int chunkSize)
+        private static async IAsyncEnumerable<ArraySegment<byte>> ReadChunks(Stream data, int chunkSize)
         {
             while (true)
             {
                 byte[] chunkData = new byte[chunkSize];
-                int read = data.ReadUpTo(chunkData, 0, chunkData.Length);
+                int read = await data.ReadUpToAsync(chunkData, 0, chunkData.Length);
 
                 if (read == 0)
                     break;

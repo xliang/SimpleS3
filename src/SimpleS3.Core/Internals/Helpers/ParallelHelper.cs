@@ -51,5 +51,26 @@ namespace Genbox.SimpleS3.Core.Internals.Helpers
                 return await Task.WhenAll(tasks);
             }
         }
+
+        public static async Task<IEnumerable<TReturn>> ExecuteAsync<T, TReturn>(IAsyncEnumerable<T> source, Func<T, CancellationToken, Task<TReturn>> action, int concurrentThreads, CancellationToken token = default)
+        {
+            List<Task<TReturn>> tasks = new List<Task<TReturn>>();
+            List<Task> tasks2 = new List<Task>();
+
+            using (SemaphoreSlim throttler = new SemaphoreSlim(concurrentThreads))
+            {
+                await foreach (T t in source.WithCancellation(token))
+                {
+                    await throttler.WaitAsync(token);
+
+                    Task<TReturn>? b = action(t, token);
+                    tasks.Add(b);
+                    tasks2.Add(b.ContinueWith(x => throttler.Release(), token, TaskContinuationOptions.None, TaskScheduler.Current));
+                }
+
+                await Task.WhenAll(tasks2);
+                return await Task.WhenAll(tasks);
+            }
+        }
     }
 }

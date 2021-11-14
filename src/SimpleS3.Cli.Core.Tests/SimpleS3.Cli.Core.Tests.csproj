@@ -7,7 +7,20 @@
   <Import Project="..\..\Imports\TestImport.props" />
 
   <ItemGroup>
+    <None Remove="Resources\data-src.txt" />
+    <None Remove="Resources\Subfolder\file1.txt" />
+    <None Remove="Resources\Subfolder\file2.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ProviderTests\ProviderTests.csproj" />
     <ProjectReference Include="..\SimpleS3.Cli.Core\SimpleS3.Cli.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>

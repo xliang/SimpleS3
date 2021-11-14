@@ -1,50 +1,49 @@
 ﻿using System;
 using System.IO;
 using Genbox.SimpleS3.Cli.Core.Enums;
+using Genbox.SimpleS3.Cli.Core.Structs;
 
 namespace Genbox.SimpleS3.Cli.Core.Helpers
 {
     public static class ResourceHelper
     {
-        public static bool TryParsePath(string path, out (string bucket, string resource, LocationType locationType, ResourceType resourceType) data)
+        /// <summary>
+        /// Parses an input path into a remote or local file/directory. If the input starts with s3:// the bucket will be parsed and the resource will be relative. If the input is a local path, bucket will be null and the resource will be an absolute path.>
+        /// </summary>
+        /// <param name="path">The input path</param>
+        /// <param name="pathData">The parsed data from path</param>
+        /// <param name="basePath">An optional base path where relative paths will be resolved from</param>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static bool TryParsePath(string path, out PathData pathData, string? basePath = null)
         {
-            if (string.IsNullOrEmpty(path))
-            {
-                data = default;
-                return false;
-            }
-
             LocationType locationType = path.StartsWith("s3://", StringComparison.OrdinalIgnoreCase) ? LocationType.Remote : LocationType.Local;
             ResourceType resourceType;
 
             if (locationType == LocationType.Local)
             {
-                if (path.Contains('*'))
-                    resourceType = ResourceType.Expand;
-                else
+                if (basePath == null)
+                    basePath = Environment.CurrentDirectory;
+
+                string basePathRoot = GetRoot(basePath);
+
+                if (basePathRoot == string.Empty)
+                    throw new InvalidOperationException($"The base-path '{basePath}' must be rooted");
+
+                if (!Directory.Exists(basePath))
+                    throw new InvalidOperationException($"The base-path '{basePath}' does not exist");
+
+                string root = GetRoot(path);
+                string fullPath = root == string.Empty ? LocalPathHelper.Combine(basePath, path) : path;
+
+                if (Directory.Exists(fullPath) || File.Exists(fullPath))
                 {
-                    if (Directory.Exists(path) || File.Exists(path))
-                    {
-                        FileAttributes attr = File.GetAttributes(path);
-                        resourceType = attr.HasFlag(FileAttributes.Directory) ? ResourceType.Directory : ResourceType.File;
-                    }
-                    else
-                    {
-                        if (path.EndsWith(Path.DirectorySeparatorChar) || path.EndsWith(Path.AltDirectorySeparatorChar))
-                            resourceType = ResourceType.Directory;
-                        else
-                            resourceType = ResourceType.File;
-                    }
+                    FileAttributes attr = File.GetAttributes(fullPath);
+                    resourceType = attr.HasFlag(FileAttributes.Directory) ? ResourceType.Directory : ResourceType.File;
                 }
+                else
+                    resourceType = fullPath.EndsWith('\\') ? ResourceType.Directory : ResourceType.File;
 
-                string? root = Path.GetPathRoot(path);
-
-                if (root == null)
-                    throw new ArgumentException("Unable to determine root of path", path);
-
-                string relative = Path.GetRelativePath(root, path);
-
-                data = (root, relative, locationType, resourceType);
+                pathData = new PathData(string.Empty, fullPath, locationType, resourceType);
             }
             else
             {
@@ -74,10 +73,20 @@ namespace Genbox.SimpleS3.Cli.Core.Helpers
 
                 string parsedBucket = path.Substring(5, indexOfSlash - 5);
 
-                data = (parsedBucket, parsedResource, locationType, resourceType);
+                pathData = new PathData(parsedBucket, parsedResource, locationType, resourceType);
             }
 
             return true;
+        }
+
+        private static string GetRoot(string path)
+        {
+            string? root = Path.GetPathRoot(path);
+
+            if (root == null)
+                return string.Empty;
+
+            return root;
         }
     }
 }

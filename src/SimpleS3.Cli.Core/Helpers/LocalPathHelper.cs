@@ -18,5 +18,10 @@ namespace Genbox.SimpleS3.Cli.Core.Helpers
         {
             return PathHelper.Combine('/', '\\', components);
         }
+
+        public static string GetRelativePath(string relativeTo, string path)
+        {
+            return Path.GetRelativePath(relativeTo, path);
+        }
     }
 }

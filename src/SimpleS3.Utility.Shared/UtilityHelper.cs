@@ -176,6 +176,11 @@ namespace Genbox.SimpleS3.Utility.Shared
                 }
             }
 
+            if (errors == 0)
+            {
+                await client.DeleteBucketAsync(bucket);
+            }
+
             return errors;
         }
 

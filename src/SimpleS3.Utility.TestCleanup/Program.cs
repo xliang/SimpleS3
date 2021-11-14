@@ -45,20 +45,7 @@ namespace Genbox.SimpleS3.Utility.TestCleanup
                 Console.Write(bucket.BucketName);
 
                 int errors = await UtilityHelper.ForceDeleteBucketAsync(s3Provider, client, bucket.BucketName);
-
-                if (errors == 0)
-                {
-                    Console.Write(" [x] emptied ");
-
-                    DeleteBucketResponse delBucketResp = await client.DeleteBucketAsync(bucket.BucketName).ConfigureAwait(false);
-
-                    if (delBucketResp.IsSuccess)
-                        Console.Write("[x] deleted");
-                    else
-                        Console.Write("[ ] deleted");
-                }
-                else
-                    Console.Write(" [ ] emptied [ ] deleted");
+                Console.Write(errors == 0 ? "[x] deleted" : "[ ] deleted");
 
                 Console.WriteLine();
             }

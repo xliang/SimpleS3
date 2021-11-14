@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Buckets
 {
-    public class HeadBucketTests : TestBase
+    public class HeadBucketTests
     {
         [Theory]
         [MultipleProviders(S3Provider.All)]
@@ -15,7 +15,7 @@ namespace Genbox.ProviderTests.Buckets
             HeadBucketResponse headResp = await client.HeadBucketAsync(bucket).ConfigureAwait(false);
             Assert.Equal(200, headResp.StatusCode);
 
-            headResp = await client.HeadBucketAsync(GetTemporaryBucket()).ConfigureAwait(false);
+            headResp = await client.HeadBucketAsync(TestHelper.GetTemporaryBucket()).ConfigureAwait(false);
             Assert.False(headResp.IsSuccess);
         }
     }

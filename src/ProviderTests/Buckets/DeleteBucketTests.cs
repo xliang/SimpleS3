@@ -8,13 +8,13 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Buckets
 {
-    public class DeleteBucketTests : TestBase
+    public class DeleteBucketTests
     {
         [Theory]
         [MultipleProviders(S3Provider.All)]
         public async Task DeleteBucket(S3Provider provider, string _, ISimpleClient client)
         {
-            string tempBucketName = GetTemporaryBucket();
+            string tempBucketName = TestHelper.GetTemporaryBucket();
 
             DeleteBucketResponse deleteResp1 = await client.DeleteBucketAsync(tempBucketName).ConfigureAwait(false);
             Assert.False(deleteResp1.IsSuccess);

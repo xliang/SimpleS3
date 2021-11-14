@@ -6,13 +6,13 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Buckets
 {
-    public class BucketVersioningTests : TestBase
+    public class BucketVersioningTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3 | S3Provider.GoogleCloudStorage)] //BackBlaze does not support suspending versioning
         public async Task PutBucketVersioningRequest(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 //Check if versioning is enabled (it shouldn't be)
                 GetBucketVersioningResponse getResp = await client.GetBucketVersioningAsync(tempBucket);

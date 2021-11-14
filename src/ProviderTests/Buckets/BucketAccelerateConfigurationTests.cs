@@ -6,13 +6,13 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Buckets
 {
-    public class BucketAccelerateConfigurationTests : TestBase
+    public class BucketAccelerateConfigurationTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3)]
         public async Task PutGetBucketAccelerateConfiguration(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async x =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async x =>
             {
                 GetBucketAccelerateConfigurationResponse getResp = await client.GetBucketAccelerateConfigurationAsync(x).ConfigureAwait(false);
                 Assert.True(getResp.IsSuccess);

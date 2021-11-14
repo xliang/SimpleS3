@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Signed
 {
-    public class SignedTests : TestBase
+    public class SignedTests
     {
         [Theory]
         [MultipleProviders(S3Provider.All)]

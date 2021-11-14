@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Multipart
 {
-    public class AbortMultipartTests : TestBase
+    public class AbortMultipartTests
     {
         [Theory]
         [MultipleProviders(S3Provider.All)]

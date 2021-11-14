@@ -13,13 +13,13 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Objects
 {
-    public class ListObjectVersionsTests : TestBase
+    public class ListObjectVersionsTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3 | S3Provider.BackBlazeB2)] //This test returns the wrong IsLatest on Google
         public async Task ListObjectVersions(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 //Enable versioning on the bucket
                 await client.PutBucketVersioningAsync(tempBucket, true);
@@ -138,7 +138,7 @@ namespace Genbox.ProviderTests.Objects
         [MultipleProviders(S3Provider.All)]
         public async Task ListObjectsMoreThanMaxKeys(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 int concurrent = 10;
                 int count = 11;
@@ -165,7 +165,7 @@ namespace Genbox.ProviderTests.Objects
         [MultipleProviders(S3Provider.All)]
         public async Task ListObjectVersionsWithDelimiter(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 string tempObjName = "object-" + Guid.NewGuid();
                 string tempObjName2 = "something-" + Guid.NewGuid();
@@ -187,7 +187,7 @@ namespace Genbox.ProviderTests.Objects
         [MultipleProviders(S3Provider.AmazonS3)]
         public async Task ListObjectVersionsWithEncoding(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 string tempObjName = "!#/()";
 
@@ -208,7 +208,7 @@ namespace Genbox.ProviderTests.Objects
         [MultipleProviders(S3Provider.All)]
         public async Task ListObjectsWithPrefix(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 string tempObjName = "object-" + Guid.NewGuid();
                 string tempObjName2 = "something-" + Guid.NewGuid();

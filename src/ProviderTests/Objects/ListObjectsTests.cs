@@ -15,13 +15,13 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Objects
 {
-    public class ListObjectsTests : TestBase
+    public class ListObjectsTests
     {
         [Theory]
         [MultipleProviders(S3Provider.All)]
         public async Task ListObjects(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 string tempObjName = "object-" + Guid.NewGuid();
                 PutObjectResponse putResp = await client.PutObjectStringAsync(tempBucket, tempObjName, "hello").ConfigureAwait(false);
@@ -53,7 +53,7 @@ namespace Genbox.ProviderTests.Objects
         [MultipleProviders(S3Provider.All)]
         public async Task ListObjectsMoreThanMaxKeys(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 int concurrent = 10;
                 int count = 11;
@@ -90,7 +90,7 @@ namespace Genbox.ProviderTests.Objects
         [MultipleProviders(S3Provider.AmazonS3 | S3Provider.BackBlazeB2 | S3Provider.GoogleCloudStorage)]
         public async Task ListObjectsWithDelimiter(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 string tempObjName = "object-" + Guid.NewGuid();
                 string tempObjName2 = "something-" + Guid.NewGuid();
@@ -116,7 +116,7 @@ namespace Genbox.ProviderTests.Objects
         [MultipleProviders(S3Provider.AmazonS3)]
         public async Task ListObjectsWithEncoding(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 string tempObjName = "!#/()";
 
@@ -138,7 +138,7 @@ namespace Genbox.ProviderTests.Objects
         [MultipleProviders(S3Provider.AmazonS3 | S3Provider.GoogleCloudStorage)]
         public async Task ListObjectsWithOwner(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 string tempObjName = "object-" + Guid.NewGuid();
                 PutObjectResponse putResp = await client.PutObjectAsync(tempBucket, tempObjName, null, r => r.AclGrantFullControl.AddEmail(TestConstants.TestEmail)).ConfigureAwait(false);
@@ -164,7 +164,7 @@ namespace Genbox.ProviderTests.Objects
         [MultipleProviders(S3Provider.All)]
         public async Task ListObjectsWithPrefix(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 string tempObjName = "object-" + Guid.NewGuid();
                 string tempObjName2 = "something-" + Guid.NewGuid();
@@ -210,7 +210,7 @@ namespace Genbox.ProviderTests.Objects
             List<string> printableCharacters = GetPrintableChars().Take(100).Select(x => x.ToString()).ToList();
             printableCharacters.Shuffle();
 
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 await ParallelHelper.ExecuteAsync(printableCharacters, async (c, token) =>
                 {

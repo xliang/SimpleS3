@@ -12,7 +12,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Objects
 {
-    public class PutObjectTests : TestBase
+    public class PutObjectTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3, ObjectCannedAcl.AuthenticatedRead, ObjectCannedAcl.AwsExecRead, ObjectCannedAcl.BucketOwnerFullControl, ObjectCannedAcl.BucketOwnerRead, ObjectCannedAcl.Private, ObjectCannedAcl.PublicRead, ObjectCannedAcl.PublicReadWrite)]

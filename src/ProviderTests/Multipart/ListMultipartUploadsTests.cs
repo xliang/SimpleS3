@@ -11,13 +11,13 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Multipart
 {
-    public class ListMultipartUploadsTests : TestBase
+    public class ListMultipartUploadsTests
     {
         [Theory]
         [MultipleProviders(S3Provider.All)]
         public async Task ListMultipartUploads(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 //The percentage sign at the end is to test if encoding works correctly
                 string objName = nameof(ListMultipartUploads) + "%";

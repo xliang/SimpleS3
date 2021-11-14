@@ -16,7 +16,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Multipart
 {
-    public class MultipartTests : TestBase
+    public class MultipartTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3, SseAlgorithm.Aes256, SseAlgorithm.AwsKms)]

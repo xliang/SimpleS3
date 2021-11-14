@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Objects
 {
-    public class DeleteObjectsTests : TestBase
+    public class DeleteObjectsTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3 | S3Provider.BackBlazeB2)]

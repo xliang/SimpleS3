@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Objects
 {
-    public class DeleteObjectTests : TestBase
+    public class DeleteObjectTests
     {
         [Theory]
         [MultipleProviders(S3Provider.All)]

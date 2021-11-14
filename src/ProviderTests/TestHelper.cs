@@ -8,14 +8,14 @@ using Xunit;
 
 namespace Genbox.ProviderTests
 {
-    public abstract class TestBase
+    public static class TestHelper
     {
-        protected string GetTemporaryBucket()
+        public static string GetTemporaryBucket()
         {
             return UtilityHelper.GetTemporaryBucket();
         }
 
-        protected async Task CreateTempBucketAsync(S3Provider provider, ISimpleClient client, Func<string, Task> action, Action<CreateBucketRequest>? config = null)
+        public static async Task CreateTempBucketAsync(S3Provider provider, ISimpleClient client, Func<string, Task> action, Action<CreateBucketRequest>? config = null)
         {
             string tempBucket = GetTemporaryBucket();
 

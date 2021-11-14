@@ -8,7 +8,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Objects
 {
-    public class ObjectAclTests : TestBase
+    public class ObjectAclTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3 | S3Provider.GoogleCloudStorage)]

@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using Genbox.SimpleS3.Core.Abstracts;
+using Genbox.SimpleS3.Core.Network.Responses.Buckets;
 using Genbox.SimpleS3.Extensions.ProfileManager.Abstracts;
 using Genbox.SimpleS3.Utility.Shared;
+using Xunit;
 using Xunit.Sdk;
 
 namespace Genbox.ProviderTests

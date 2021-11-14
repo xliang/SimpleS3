@@ -9,7 +9,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Objects
 {
-    public class HeadObjectTests : TestBase
+    public class HeadObjectTests
     {
         [Theory]
         [MultipleProviders(S3Provider.All)]

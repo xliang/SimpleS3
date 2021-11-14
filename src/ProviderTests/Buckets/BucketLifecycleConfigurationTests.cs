@@ -10,13 +10,13 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Buckets
 {
-    public class BucketLifecycleConfigurationTests : TestBase
+    public class BucketLifecycleConfigurationTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3)]
         public async Task PutGetLifecycleConfigurationTest(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 S3Rule rule1 = new S3Rule("Transition logs after 30 days to StandardIa and after 60 days to OneZoneIa", true);
                 rule1.Transitions.Add(new S3Transition(30, StorageClass.StandardIa));
@@ -64,7 +64,7 @@ namespace Genbox.ProviderTests.Buckets
         [MultipleProviders(S3Provider.AmazonS3)]
         public async Task PutLifecycleConfigurationBucketWideTest(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 S3Rule rule = new S3Rule("Expire the whole bucket after 10 days", true);
                 rule.Expiration = new S3Expiration(DateTimeOffset.UtcNow.AddDays(10));
@@ -89,7 +89,7 @@ namespace Genbox.ProviderTests.Buckets
         [MultipleProviders(S3Provider.AmazonS3)]
         public async Task PutLifecycleConfigurationWithLogicalAndTest(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 S3AndCondition conditions = new S3AndCondition();
                 conditions.Prefix = "temp/";

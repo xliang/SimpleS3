@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Objects
 {
-    public class RestoreObjectTests : TestBase
+    public class RestoreObjectTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3)]

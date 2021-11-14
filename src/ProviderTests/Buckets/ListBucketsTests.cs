@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Buckets
 {
-    public class ListBucketsTests : TestBase
+    public class ListBucketsTests
     {
         [Theory]
         [MultipleProviders(S3Provider.All)]

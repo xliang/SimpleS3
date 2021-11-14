@@ -8,13 +8,13 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Buckets
 {
-    public class BucketLockConfigurationTests : TestBase
+    public class BucketLockConfigurationTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3, LockMode.Compliance, LockMode.Governance)]
         public async Task GetPutBucketLockConfiguration(S3Provider provider, string _, ISimpleClient client, LockMode mode)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 PutBucketLockConfigurationResponse putResp = await client.PutBucketLockConfigurationAsync(tempBucket, true, x =>
                 {
@@ -34,7 +34,7 @@ namespace Genbox.ProviderTests.Buckets
         [MultipleProviders(S3Provider.AmazonS3 | S3Provider.BackBlazeB2)]
         public async Task GetEmptyBucketLock(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 GetBucketLockConfigurationResponse getResp = await client.GetBucketLockConfigurationAsync(tempBucket).ConfigureAwait(false);
                 Assert.Equal(200, getResp.StatusCode);
@@ -47,7 +47,7 @@ namespace Genbox.ProviderTests.Buckets
         [MultipleProviders(S3Provider.AmazonS3 | S3Provider.BackBlazeB2)]
         public async Task GetWhenBucketLockIsDisabled(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 GetBucketLockConfigurationResponse getResp = await client.GetBucketLockConfigurationAsync(tempBucket).ConfigureAwait(false);
                 Assert.Equal(404, getResp.StatusCode);
@@ -58,7 +58,7 @@ namespace Genbox.ProviderTests.Buckets
         [MultipleProviders(S3Provider.All)]
         public async Task OverwriteExistingLock(S3Provider provider, string _, ISimpleClient client)
         {
-            await CreateTempBucketAsync(provider, client, async tempBucket =>
+            await TestHelper.CreateTempBucketAsync(provider, client, async tempBucket =>
             {
                 PutBucketLockConfigurationResponse putResp = await client.PutBucketLockConfigurationAsync(tempBucket, true, r =>
                 {

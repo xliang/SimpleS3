@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Genbox.ProviderTests.Objects
 {
-    public class ObjectLegalHoldTests : TestBase
+    public class ObjectLegalHoldTests
     {
         [Theory]
         [MultipleProviders(S3Provider.AmazonS3 | S3Provider.BackBlazeB2)]
